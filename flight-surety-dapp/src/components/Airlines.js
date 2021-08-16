@@ -42,7 +42,7 @@ export default function Airlines({ airlines, handleAddAirline }) {
 								<tr key={index} className='text-left'>
 									<td className='text-center'>{index + 1}</td>
 									<td>{airline.name}</td>
-									<td>{airline.address}</td>
+									<td>{airline.address.toLowerCase()}</td>
 									<td>{airline.status}</td>
 									<td className='td-actions text-right'>
 										{airline.status == 'Registered' && (

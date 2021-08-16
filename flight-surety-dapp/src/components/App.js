@@ -50,7 +50,7 @@ export default function FlightSuretyDapp({ network }) {
 			setAccount(accounts[0])
 			setUserRole(accounts[0])
 		})
-	}, [])
+	}, [airlines, setAirlines])
 
 	async function loadBlockchainData(network) {
 		const web3 = new Web3(Web3.givenProvider || Config[network].url)
@@ -86,14 +86,14 @@ export default function FlightSuretyDapp({ network }) {
 	function setUserRole(account) {
 		if (
 			airlines.filter(
-				(airline) => airline.address.toLowerCase() == account.toLowerCase()
+				(airline) => airline.address.toLowerCase() === account.toLowerCase()
 			).length > 0
 		) {
 			setRole('Airline')
 		} else if (
 			passengers.filter(
 				(passengers) =>
-					passengers.address.toLowerCase() == account.toLowerCase()
+					passengers.address.toLowerCase() === account.toLowerCase()
 			).length > 0
 		) {
 			setRole('Passenger')
@@ -102,15 +102,33 @@ export default function FlightSuretyDapp({ network }) {
 		}
 	}
 
+	function handleAirlineEdit(airline) {
+		setAirlines((airlines) => {
+			const isNewAirline =
+				airlines.filter(
+					(a) => a.address.toLowerCase() === airline.address.toLowerCase()
+				).length === 0
+			const updatedAirlines = isNewAirline
+				? [...airlines, airline]
+				: airlines.map((a) =>
+						a.address.toLowerCase() === airline.address.toLowerCase()
+							? airline
+							: a
+				  )
+			return updatedAirlines
+		})
+	}
+
 	function setWeb3EventListeners(web3, contract) {
 		// Airlines
 		const AirlineRegistered = {
 			callback: (event) => {
 				console.log('AirlineRegistered', event)
-				setAirlines((airlines) => [
-					...airlines,
-					{ name: event.name, address: event.airline, status: 'Registered' },
-				])
+				handleAirlineEdit({
+					name: event.name,
+					address: event.airline,
+					status: 'Registered',
+				})
 				displayAlert(
 					`Successfully registered airline ${event.name} with address ${event.airline}`
 				)
@@ -120,10 +138,11 @@ export default function FlightSuretyDapp({ network }) {
 		const AirlineQueued = {
 			callback: (event) => {
 				console.log('AirlineQueued', event)
-				setAirlines((airlines) => [
-					...airlines,
-					{ name: event.name, address: event.airline, status: 'Queued' },
-				])
+				handleAirlineEdit({
+					name: event.name,
+					address: event.airline,
+					status: 'Queued',
+				})
 				displayAlert(
 					`Successfully queued airline ${event.name} with address ${event.airline}`
 				)
@@ -133,10 +152,11 @@ export default function FlightSuretyDapp({ network }) {
 		const AirlineFunded = {
 			callback: (event) => {
 				console.log('AirlineFunded', event)
-				setAirlines((airlines) => [
-					...airlines,
-					{ name: event.name, address: event.airline, status: 'Funded' },
-				])
+				handleAirlineEdit({
+					name: event.name,
+					address: event.airline,
+					status: 'Funded',
+				})
 				displayAlert(
 					`Successfully funded airline ${event.name} with address ${event.airline}`
 				)
@@ -181,9 +201,7 @@ export default function FlightSuretyDapp({ network }) {
 					)
 					const eventName = eventInterfaces[result.topics[0]].name
 					if (events[eventName].callback) {
-						events[eventName].callback({
-							...eventObj,
-						})
+						events[eventName].callback(eventObj)
 					}
 				}
 			}
