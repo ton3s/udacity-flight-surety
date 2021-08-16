@@ -33,6 +33,7 @@ export default function FlightSuretyDapp({ network }) {
 
 	// Contract
 	const [flightSurety, setFlightSurety] = useState()
+	const [web3, setWeb3] = useState()
 
 	// Utility
 	const [visible, setVisible] = useState(false)
@@ -69,6 +70,7 @@ export default function FlightSuretyDapp({ network }) {
 
 		// Setup web3 event listeners
 		setWeb3EventListeners(web3, contract)
+		setWeb3(web3)
 	}
 
 	function displayAlert(message) {
@@ -79,6 +81,13 @@ export default function FlightSuretyDapp({ network }) {
 
 	function handleAddAirline(name, address) {
 		flightSurety.methods.registerAirline(name, address).send({ from: account })
+	}
+
+	function handleFundAirline(account) {
+		console.log(account)
+		flightSurety.methods
+			.fundAirline()
+			.send({ from: account, value: web3.utils.toWei('10', 'ether') })
 	}
 
 	// Sets account role depending on the address selected
@@ -230,7 +239,11 @@ export default function FlightSuretyDapp({ network }) {
 				</h4>
 
 				<User flightSurety={flightSurety} account={account} role={role} />
-				<Airlines airlines={airlines} handleAddAirline={handleAddAirline} />
+				<Airlines
+					airlines={airlines}
+					handleAddAirline={handleAddAirline}
+					handleFundAirline={handleFundAirline}
+				/>
 				<Flights flightSurety={flightSurety} />
 				<Passengers flightSurety={flightSurety} />
 			</Container>

@@ -14,7 +14,11 @@ const styles = {
 	},
 }
 
-export default function Airlines({ airlines, handleAddAirline }) {
+export default function Airlines({
+	airlines,
+	handleAddAirline,
+	handleFundAirline,
+}) {
 	const [showAirlineModal, setShowAirlineModal] = React.useState(false)
 
 	return (
@@ -49,7 +53,8 @@ export default function Airlines({ airlines, handleAddAirline }) {
 											<Button
 												style={styles.button_action}
 												color='primary'
-												type='button'>
+												type='button'
+												onClick={() => handleFundAirline(airline.address)}>
 												Fund
 											</Button>
 										)}
