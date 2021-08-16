@@ -84,10 +84,13 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function handleFundAirline(account) {
-		console.log(account)
 		flightSurety.methods
 			.fundAirline()
 			.send({ from: account, value: web3.utils.toWei('10', 'ether') })
+	}
+
+	function handleVoteAirline(airline) {
+		flightSurety.methods.voteAirline(airline).send({ from: account })
 	}
 
 	// Sets account role depending on the address selected
@@ -243,6 +246,7 @@ export default function FlightSuretyDapp({ network }) {
 					airlines={airlines}
 					handleAddAirline={handleAddAirline}
 					handleFundAirline={handleFundAirline}
+					handleVoteAirline={handleVoteAirline}
 				/>
 				<Flights flightSurety={flightSurety} />
 				<Passengers flightSurety={flightSurety} />

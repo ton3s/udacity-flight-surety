@@ -70,7 +70,7 @@ export default function AddAirlines({ isOpen, toggle, handleAddAirline }) {
 							className='btn-neutral btn-round'
 							style={styles.button_modal}
 							color='primary'>
-							Register Airline
+							Add Airline
 						</Button>
 					</div>
 				</Card>

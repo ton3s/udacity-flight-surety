@@ -18,6 +18,7 @@ export default function Airlines({
 	airlines,
 	handleAddAirline,
 	handleFundAirline,
+	handleVoteAirline,
 }) {
 	const [showAirlineModal, setShowAirlineModal] = React.useState(false)
 
@@ -63,7 +64,8 @@ export default function Airlines({
 												style={styles.button_action}
 												className='text-center'
 												color='primary'
-												type='button'>
+												type='button'
+												onClick={() => handleVoteAirline(airline.address)}>
 												Vote
 											</Button>
 										)}
@@ -76,7 +78,7 @@ export default function Airlines({
 						className='text-center'
 						color='primary'
 						onClick={() => setShowAirlineModal(true)}>
-						Register Airline
+						Add Airline
 					</Button>
 				</CardBody>
 			</Card>
