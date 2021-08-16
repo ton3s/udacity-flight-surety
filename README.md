@@ -16,7 +16,7 @@ Migrate contracts to setup necessary configuration files (ABI/Settings) from Dap
 ```
 cd flight-surety-contract
 npm install
-truffle migrate
+truffle migrate --reset
 ```
 
 Runs the app in the development mode.

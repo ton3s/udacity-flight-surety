@@ -37,6 +37,7 @@ export default function FlightSuretyDapp({ network }) {
 
 	// Watch for web3 events
 	useEffect(() => {
+		// Check if the user changes accounts
 		window.ethereum.on('accountsChanged', (accounts) => {
 			setAccount(accounts[0])
 		})
@@ -55,6 +56,17 @@ export default function FlightSuretyDapp({ network }) {
 			Config[network].appAddress
 		)
 		setFlightSurety(contract)
+
+		// Setup web3 event listeners
+		subscribeLogEvent(web3, contract, 'AirlineRegistered', (event) => {
+			setAirlines((airlines) => [
+				...airlines,
+				{ name: event.name, address: event.airline },
+			])
+			displayAlert(
+				`Successfully registered airline ${event.name} with address ${event.airline}`
+			)
+		})
 	}
 
 	function displayAlert(message) {
@@ -64,17 +76,32 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function handleAddAirline(name, address) {
-		flightSurety.methods
-			.registerAirline(name, address)
-			.send({ from: account })
-			.then((receipt) => {
-				setAirlines((airlines) => [...airlines, { name, address }])
-				console.log(airlines)
-				console.log(receipt)
-				displayAlert(
-					`Successfully registered ${name} with transaction hash ${receipt.transactionHash}`
-				)
-			})
+		flightSurety.methods.registerAirline(name, address).send({ from: account })
+	}
+
+	function subscribeLogEvent(web3, contract, eventName, callback) {
+		const eventJsonInterface = web3.utils._.find(
+			contract._jsonInterface,
+			(o) => o.name === eventName && o.type === 'event'
+		)
+		web3.eth.subscribe(
+			'logs',
+			{
+				fromBlock: 0,
+				address: contract.options.address,
+				topics: [eventJsonInterface.signature],
+			},
+			(error, result) => {
+				if (!error) {
+					const eventObj = web3.eth.abi.decodeLog(
+						eventJsonInterface.inputs,
+						result.data,
+						result.topics.slice(1)
+					)
+					callback(eventObj)
+				}
+			}
+		)
 	}
 
 	return (
