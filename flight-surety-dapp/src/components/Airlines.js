@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import {
 	Container,
 	Card,
@@ -26,13 +27,19 @@ const styles = {
 		marginRight: '10px',
 	},
 	button_modal: {
-		fontSize: '20px',
+		fontSize: '16px',
 		paddingTop: '15px',
 	},
 }
 
 export default function Airlines({ firstAirline }) {
 	const [modalAirline, setModalAirline] = React.useState(false)
+	const { register, handleSubmit, reset } = useForm()
+
+	function onSubmit(data) {
+		setModalAirline(false)
+		console.log(data)
+	}
 
 	function ModalAddAirline() {
 		return (
@@ -40,42 +47,48 @@ export default function Airlines({ firstAirline }) {
 				isOpen={modalAirline}
 				toggle={() => setModalAirline(!modalAirline)}>
 				<Card className=' card-login card-plain'>
-					<div className=' modal-header justify-content-center'>
-						<button
-							aria-label='Close'
-							className=' close'
-							data-dismiss='modal'
-							type='button'
-							onClick={() => setModalAirline(!modalAirline)}>
-							<span aria-hidden={true}>×</span>
-						</button>
-					</div>
-					<div className='modal-body'>
-						<Form action='' className='form' method=''>
+					<Form onSubmit={handleSubmit(onSubmit)}>
+						<div className=' modal-header justify-content-center'>
+							<button
+								aria-label='Close'
+								className=' close'
+								data-dismiss='modal'
+								type='button'
+								onClick={() => setModalAirline(!modalAirline)}>
+								<span aria-hidden={true}>×</span>
+							</button>
+						</div>
+						<div className='modal-body'>
 							<CardBody>
 								<InputGroup>
-									<Input name='name' placeholder='Airline Name' type='text' />
+									<Input
+										name='name'
+										placeholder='Airline Name'
+										type='text'
+										{...register('name')}
+									/>
 								</InputGroup>
 								<InputGroup>
 									<Input
 										name='address'
 										placeholder='Airline Address'
 										type='text'
+										{...register('address')}
 									/>
 								</InputGroup>
 							</CardBody>
-						</Form>
-					</div>
-					<div className='modal-footer text-center'>
-						<Button
-							block
-							className=' btn-neutral btn-round'
-							style={styles.button_modal}
-							color='default'
-							onClick={() => setModalAirline(!modalAirline)}>
-							Register Airline
-						</Button>
-					</div>
+						</div>
+						<div className='modal-footer text-center'>
+							<Button
+								type='submit'
+								block
+								className='btn-neutral btn-round'
+								style={styles.button_modal}
+								color='primary'>
+								Register Airline
+							</Button>
+						</div>
+					</Form>
 				</Card>
 			</Modal>
 		)

@@ -30,7 +30,7 @@ export default function FlightSuretyDapp({ network }) {
 	// Initialize web3
 	useEffect(() => {
 		loadBlockchainData(network)
-	}, [])
+	}, [network])
 
 	// Watch for events in web3
 	useEffect(() => {
