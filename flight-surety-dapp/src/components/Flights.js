@@ -11,7 +11,7 @@ import {
 
 const styles = {
 	card_title: {
-		fontSize: '28px',
+		fontSize: '24px',
 		marginBottom: '20px',
 	},
 }
@@ -42,7 +42,7 @@ export default function Flights() {
 					</tbody>
 				</Table>
 				<Button className='text-center' color='primary'>
-					Add Airline
+					Register Flight
 				</Button>
 			</CardBody>
 		</Card>

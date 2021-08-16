@@ -15,6 +15,7 @@ module.exports = function (deployer) {
 					url: 'http://localhost:7545',
 					appAddress: FlightSuretyApp.address,
 				},
+				firstAirline,
 			}
 
 			// Helper function to setup config file and ABI to be available for Dapp to consume
