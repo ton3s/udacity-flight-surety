@@ -69,46 +69,6 @@ export default function FlightSuretyDapp({ network }) {
 
 		// Setup web3 event listeners
 		setWeb3EventListeners(web3, contract)
-		// Airlines
-		// subscribeLogEvent(web3, contract, 'AirlineRegistered', (event) => {
-		// 	console.log('AirlineRegistered', event)
-		// 	setAirlines((airlines) => [
-		// 		...airlines,
-		// 		{ name: event.name, address: event.airline, status: 'Registered' },
-		// 	])
-		// 	displayAlert(
-		// 		`Successfully registered airline ${event.name} with address ${event.airline}`
-		// 	)
-		// })
-
-		// subscribeLogEvent(web3, contract, 'AirlineQueued', (event) => {
-		// console.log('AirlineQueued', event)
-		// setAirlines((airlines) => [
-		// 	...airlines,
-		// 	{ name: event.name, address: event.airline, status: 'Queued' },
-		// ])
-		// displayAlert(
-		// 	`Successfully queued airline ${event.name} with address ${event.airline}`
-		// )
-		// })
-
-		// subscribeLogEvent(web3, contract, 'AirlineFunded', (event) => {
-		// 	console.log('AirlineFunded', event)
-		// 	setAirlines((airlines) => [
-		// 		...airlines,
-		// 		{ name: event.name, address: event.airline, status: 'Funded' },
-		// 	])
-		// 	displayAlert(
-		// 		`Successfully funded airline ${event.name} with address ${event.airline}`
-		// 	)
-		// })
-
-		// subscribeLogEvent(web3, contract, 'AirlineVoted', (event) => {
-		// 	console.log('AirlineVoted', event)
-		// 	displayAlert(
-		// 		`Successfully voted for airline ${event.name} from address ${event.fromAirline}`
-		// 	)
-		// })
 	}
 
 	function displayAlert(message) {
@@ -156,6 +116,7 @@ export default function FlightSuretyDapp({ network }) {
 				)
 			},
 		}
+
 		const AirlineQueued = {
 			callback: (event) => {
 				console.log('AirlineQueued', event)
@@ -168,7 +129,35 @@ export default function FlightSuretyDapp({ network }) {
 				)
 			},
 		}
-		subscribeAllEvents(web3, contract, { AirlineRegistered, AirlineQueued })
+
+		const AirlineFunded = {
+			callback: (event) => {
+				console.log('AirlineFunded', event)
+				setAirlines((airlines) => [
+					...airlines,
+					{ name: event.name, address: event.airline, status: 'Funded' },
+				])
+				displayAlert(
+					`Successfully funded airline ${event.name} with address ${event.airline}`
+				)
+			},
+		}
+
+		const AirlineVoted = {
+			callback: (event) => {
+				console.log('AirlineVoted', event)
+				displayAlert(
+					`Successfully voted for airline ${event.name} from address ${event.fromAirline}`
+				)
+			},
+		}
+
+		subscribeAllEvents(web3, contract, {
+			AirlineRegistered,
+			AirlineQueued,
+			AirlineFunded,
+			AirlineVoted,
+		})
 	}
 
 	function subscribeAllEvents(web3, contract, events) {
