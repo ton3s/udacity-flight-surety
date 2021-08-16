@@ -30,6 +30,9 @@ const styles = {
 		fontSize: '16px',
 		paddingTop: '15px',
 	},
+	button_close: {
+		marginBottom: '15px',
+	},
 }
 
 export default function Airlines({ firstAirline }) {
@@ -46,9 +49,9 @@ export default function Airlines({ firstAirline }) {
 			<Modal
 				isOpen={modalAirline}
 				toggle={() => setModalAirline(!modalAirline)}>
-				<Card className=' card-login card-plain'>
-					<Form onSubmit={handleSubmit(onSubmit)}>
-						<div className=' modal-header justify-content-center'>
+				<Form onSubmit={handleSubmit(onSubmit)}>
+					<Card className=' card-login card-plain'>
+						<div className='modal-header justify-content-center'>
 							<button
 								aria-label='Close'
 								className=' close'
@@ -88,8 +91,8 @@ export default function Airlines({ firstAirline }) {
 								Register Airline
 							</Button>
 						</div>
-					</Form>
-				</Card>
+					</Card>
+				</Form>
 			</Modal>
 		)
 	}
