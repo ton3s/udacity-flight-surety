@@ -10,7 +10,7 @@ const styles = {
 		marginBottom: '20px',
 	},
 	button_action: {
-		marginRight: '10px',
+		margin: '0px',
 	},
 }
 
@@ -34,7 +34,7 @@ export default function Airlines({ airlines, handleAddAirline }) {
 								<th>Name</th>
 								<th>Address</th>
 								<th>Status</th>
-								<th className='text-center'>Actions</th>
+								<th className='text-right'>Actions</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -55,6 +55,7 @@ export default function Airlines({ airlines, handleAddAirline }) {
 										)}
 										{airline.status == 'Queued' && (
 											<Button
+												style={styles.button_action}
 												className='text-center'
 												color='primary'
 												type='button'>
