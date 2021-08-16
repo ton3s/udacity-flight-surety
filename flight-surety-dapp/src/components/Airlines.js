@@ -43,20 +43,24 @@ export default function Airlines({ airlines, handleAddAirline }) {
 									<td className='text-center'>{index + 1}</td>
 									<td>{airline.name}</td>
 									<td>{airline.address}</td>
-									<td>Registered</td>
+									<td>{airline.status}</td>
 									<td className='td-actions text-right'>
-										<Button
-											style={styles.button_action}
-											color='primary'
-											type='button'>
-											Fund
-										</Button>
-										<Button
-											className='text-center'
-											color='primary'
-											type='button'>
-											Vote
-										</Button>
+										{airline.status == 'Registered' && (
+											<Button
+												style={styles.button_action}
+												color='primary'
+												type='button'>
+												Fund
+											</Button>
+										)}
+										{airline.status == 'Queued' && (
+											<Button
+												className='text-center'
+												color='primary'
+												type='button'>
+												Vote
+											</Button>
+										)}
 									</td>
 								</tr>
 							))}

@@ -16,7 +16,7 @@ const styles = {
 	},
 }
 
-export default function User({ account }) {
+export default function User({ account, role }) {
 	return (
 		<Card>
 			<CardBody className='text-center'>
@@ -32,7 +32,7 @@ export default function User({ account }) {
 					</thead>
 					<tbody>
 						<tr className='text-left'>
-							<td>Passenger / Airline</td>
+							<td>{role}</td>
 							<td>{account}</td>
 						</tr>
 					</tbody>

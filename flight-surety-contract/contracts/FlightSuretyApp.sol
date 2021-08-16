@@ -59,6 +59,7 @@ contract FlightSuretyApp {
     event AirlineRegistered(string name, address airline);
     event AirlineQueued(string name, address airline);
     event AirlineFunded(string name, address airline);
+    event AirlineVoted(string name, address fromAirline, address toAirline);
     event FlightRegistered(string flightNumber, uint flightTime, address airline);
     event FlightStatus(string flightNumber, uint flightTime, uint8 statusCode);
     event FlightCreditInsurees(string flightNumber, uint flightTime, address airline);
@@ -210,7 +211,8 @@ contract FlightSuretyApp {
         require(!isDuplicate, "Caller has already voted to registered this airline");
 
         airlines[airline].votes.push(msg.sender);
-        
+        emit AirlineVoted(airlines[airline].name, msg.sender, airline);
+
         // Check if airline has the required number of votes 50%+
         if (airlines[airline].votes.length > SafeMath.div(registeredAirlinesCount, 2)) {
             airlines[airline].status = AirlineState.REGISTERED;

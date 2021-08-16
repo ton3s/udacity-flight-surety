@@ -3,7 +3,8 @@ const fs = require('fs')
 
 const firstAirline = {
 	name: 'Udacity Airlines',
-	address: '0x85C2A38b0251fbe7E5bDBb43f34212c0E32e9D3B',
+	address: '0x85c2a38b0251fbe7e5bdbb43f34212c0e32e9d3b',
+	status: 'Registered',
 }
 
 module.exports = function (deployer) {
