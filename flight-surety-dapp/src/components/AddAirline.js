@@ -20,13 +20,13 @@ const styles = {
 	},
 }
 
-export default function AddAirlines({ isOpen, toggle }) {
+export default function AddAirlines({ isOpen, toggle, handleAddAirline }) {
 	const { register, handleSubmit, reset } = useForm()
 
-	function onSubmit(data) {
+	function onSubmit(airline) {
 		reset()
 		toggle(false)
-		console.log(data)
+		handleAddAirline(airline.name, airline.address)
 	}
 
 	return (

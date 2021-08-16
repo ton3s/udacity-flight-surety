@@ -22,6 +22,9 @@ const styles = {
 }
 
 export default function FlightSuretyDapp({ network }) {
+	const [airlines, setAirlines] = useState([Config.firstAirline])
+	const [flights, setFlights] = useState([])
+	const [passengers, setPassengers] = useState([])
 	const [account, setAccount] = useState()
 	const [flightSurety, setFlightSurety] = useState()
 	const [visible, setVisible] = useState(false)
@@ -32,7 +35,7 @@ export default function FlightSuretyDapp({ network }) {
 		loadBlockchainData(network)
 	}, [network])
 
-	// Watch for events in web3
+	// Watch for web3 events
 	useEffect(() => {
 		window.ethereum.on('accountsChanged', (accounts) => {
 			setAccount(accounts[0])
@@ -60,6 +63,20 @@ export default function FlightSuretyDapp({ network }) {
 		setTimeout(() => setVisible(false), 3000)
 	}
 
+	function handleAddAirline(name, address) {
+		flightSurety.methods
+			.registerAirline(name, address)
+			.send({ from: account })
+			.then((receipt) => {
+				setAirlines((airlines) => [...airlines, { name, address }])
+				console.log(airlines)
+				console.log(receipt)
+				displayAlert(
+					`Successfully registered ${name} with transaction hash ${receipt.transactionHash}`
+				)
+			})
+	}
+
 	return (
 		<React.Fragment>
 			<Container className='tim-container'>
@@ -75,10 +92,7 @@ export default function FlightSuretyDapp({ network }) {
 				</h4>
 
 				<User flightSurety={flightSurety} account={account} />
-				<Airlines
-					flightSurety={flightSurety}
-					firstAirline={Config.firstAirline}
-				/>
+				<Airlines airlines={airlines} handleAddAirline={handleAddAirline} />
 				<Flights flightSurety={flightSurety} />
 				<Passengers flightSurety={flightSurety} />
 			</Container>

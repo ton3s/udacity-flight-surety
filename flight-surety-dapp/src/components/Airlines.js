@@ -14,12 +14,16 @@ const styles = {
 	},
 }
 
-export default function Airlines({ firstAirline }) {
+export default function Airlines({ airlines, handleAddAirline }) {
 	const [showAirlineModal, setShowAirlineModal] = React.useState(false)
 
 	return (
 		<>
-			<AddAirline isOpen={showAirlineModal} toggle={setShowAirlineModal} />
+			<AddAirline
+				isOpen={showAirlineModal}
+				toggle={setShowAirlineModal}
+				handleAddAirline={handleAddAirline}
+			/>
 			<Card>
 				<CardBody className='text-center'>
 					<CardTitle style={styles.card_title}>Airlines</CardTitle>
@@ -34,23 +38,28 @@ export default function Airlines({ firstAirline }) {
 							</tr>
 						</thead>
 						<tbody>
-							<tr className='text-left'>
-								<td className='text-center'>1</td>
-								<td>{firstAirline.name}</td>
-								<td>{firstAirline.address}</td>
-								<td>Registered</td>
-								<td className='td-actions text-right'>
-									<Button
-										style={styles.button_action}
-										color='primary'
-										type='button'>
-										Fund
-									</Button>
-									<Button className='text-center' color='primary' type='button'>
-										Vote
-									</Button>
-								</td>
-							</tr>
+							{airlines.map((airline, index) => (
+								<tr key={index} className='text-left'>
+									<td className='text-center'>{index + 1}</td>
+									<td>{airline.name}</td>
+									<td>{airline.address}</td>
+									<td>Registered</td>
+									<td className='td-actions text-right'>
+										<Button
+											style={styles.button_action}
+											color='primary'
+											type='button'>
+											Fund
+										</Button>
+										<Button
+											className='text-center'
+											color='primary'
+											type='button'>
+											Vote
+										</Button>
+									</td>
+								</tr>
+							))}
 						</tbody>
 					</Table>
 					<Button
