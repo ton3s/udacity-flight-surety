@@ -1,22 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import {
-	Container,
-	Card,
-	CardBody,
-	CardTitle,
-	Button,
-	Alert,
-	Table,
-	Modal,
-	ModalBody,
-	ModalFooter,
-	InputGroup,
-	InputGroupAddon,
-	InputGroupText,
-	Form,
-	Input,
-} from 'reactstrap'
+import { Card, CardTitle, CardBody, Button, Table } from 'reactstrap'
+
+// Components
+import AddAirline from './AddAirline'
 
 const styles = {
 	card_title: {
@@ -26,80 +12,14 @@ const styles = {
 	button_action: {
 		marginRight: '10px',
 	},
-	button_modal: {
-		fontSize: '16px',
-		paddingTop: '15px',
-	},
-	button_close: {
-		marginBottom: '15px',
-	},
 }
 
 export default function Airlines({ firstAirline }) {
-	const [modalAirline, setModalAirline] = React.useState(false)
-	const { register, handleSubmit, reset } = useForm()
-
-	function onSubmit(data) {
-		setModalAirline(false)
-		console.log(data)
-	}
-
-	function ModalAddAirline() {
-		return (
-			<Modal
-				isOpen={modalAirline}
-				toggle={() => setModalAirline(!modalAirline)}>
-				<Form onSubmit={handleSubmit(onSubmit)}>
-					<Card className=' card-login card-plain'>
-						<div className='modal-header justify-content-center'>
-							<button
-								aria-label='Close'
-								className=' close'
-								data-dismiss='modal'
-								type='button'
-								onClick={() => setModalAirline(!modalAirline)}>
-								<span aria-hidden={true}>×</span>
-							</button>
-						</div>
-						<div className='modal-body'>
-							<CardBody>
-								<InputGroup>
-									<Input
-										name='name'
-										placeholder='Airline Name'
-										type='text'
-										{...register('name')}
-									/>
-								</InputGroup>
-								<InputGroup>
-									<Input
-										name='address'
-										placeholder='Airline Address'
-										type='text'
-										{...register('address')}
-									/>
-								</InputGroup>
-							</CardBody>
-						</div>
-						<div className='modal-footer text-center'>
-							<Button
-								type='submit'
-								block
-								className='btn-neutral btn-round'
-								style={styles.button_modal}
-								color='primary'>
-								Register Airline
-							</Button>
-						</div>
-					</Card>
-				</Form>
-			</Modal>
-		)
-	}
+	const [showAirlineModal, setShowAirlineModal] = React.useState(false)
 
 	return (
 		<>
-			<ModalAddAirline />
+			<AddAirline isOpen={showAirlineModal} toggle={setShowAirlineModal} />
 			<Card>
 				<CardBody className='text-center'>
 					<CardTitle style={styles.card_title}>Airlines</CardTitle>
@@ -136,7 +56,7 @@ export default function Airlines({ firstAirline }) {
 					<Button
 						className='text-center'
 						color='primary'
-						onClick={() => setModalAirline(true)}>
+						onClick={() => setShowAirlineModal(true)}>
 						Register Airline
 					</Button>
 				</CardBody>
