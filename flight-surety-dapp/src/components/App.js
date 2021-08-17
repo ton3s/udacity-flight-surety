@@ -88,19 +88,39 @@ export default function FlightSuretyDapp({ network }) {
 		setWeb3EventListeners(contract)
 	}
 
-	function displayAlert(message) {
-		setAlert(
-			<ReactBSAlert
-				success
-				style={{ display: 'block', marginTop: '-100px' }}
-				title='Good job!'
-				onConfirm={() => hideAlert()}
-				onCancel={() => hideAlert()}
-				confirmBtnBsStyle='info'
-				btnSize=''>
-				{message}
-			</ReactBSAlert>
-		)
+	function displayAlert(message, type) {
+		switch (type) {
+			case 'Success': {
+				setAlert(
+					<ReactBSAlert
+						success
+						style={{ display: 'block', marginTop: '-100px' }}
+						title='Good job!'
+						onConfirm={() => hideAlert()}
+						onCancel={() => hideAlert()}
+						confirmBtnBsStyle='info'
+						btnSize=''>
+						{message}
+					</ReactBSAlert>
+				)
+				break
+			}
+			case 'Error': {
+				setAlert(
+					<ReactBSAlert
+						error
+						style={{ display: 'block', marginTop: '-100px' }}
+						title='Uh Oh!'
+						onConfirm={() => hideAlert()}
+						onCancel={() => hideAlert()}
+						confirmBtnBsStyle='danger'
+						btnSize=''>
+						{message}
+					</ReactBSAlert>
+				)
+				break
+			}
+		}
 	}
 
 	const hideAlert = () => {
@@ -111,21 +131,39 @@ export default function FlightSuretyDapp({ network }) {
 		flightSurety.methods
 			.registerAirline(name, address)
 			.send({ from: user.address })
-			.catch((err) => console.log('handleAddAirline: ', err))
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to add an airline. Please check the console for more details.',
+					'Error'
+				)
+			})
 	}
 
 	function handleFundAirline(account) {
 		flightSurety.methods
 			.fundAirline()
 			.send({ from: account, value: web3.utils.toWei('10', 'ether') })
-			.catch((err) => console.log('handleFundAirline: ', err))
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to fund an airline. Please check the console for more details.',
+					'Error'
+				)
+			})
 	}
 
 	function handleVoteAirline(airline) {
 		flightSurety.methods
 			.voteAirline(airline)
 			.send({ from: user.address })
-			.catch((err) => console.log('handleAddAirline: ', err))
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to vote for an airline. Please check the console for more details.',
+					'Error'
+				)
+			})
 	}
 
 	// Sets account role depending on the address selected
@@ -185,7 +223,7 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Registered',
 				})
-				displayAlert(`Successfully registered airline ${event.name}`)
+				displayAlert(`Successfully registered airline ${event.name}`, 'Success')
 			},
 		}
 
@@ -197,7 +235,7 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Queued',
 				})
-				displayAlert(`Successfully queued airline ${event.name}`)
+				displayAlert(`Successfully queued airline ${event.name}`, 'Success')
 			},
 		}
 
@@ -209,14 +247,14 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Funded',
 				})
-				displayAlert(`Successfully funded airline ${event.name}`)
+				displayAlert(`Successfully funded airline ${event.name}`, 'Success')
 			},
 		}
 
 		const AirlineVoted = {
 			callback: (event) => {
 				console.log('AirlineVoted', event)
-				displayAlert(`Successfully voted for airline ${event.name}`)
+				displayAlert(`Successfully voted for airline ${event.name}`, 'Success')
 			},
 		}
 
