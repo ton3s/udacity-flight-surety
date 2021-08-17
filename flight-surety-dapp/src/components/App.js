@@ -12,6 +12,9 @@ import Airlines from './Airlines'
 import Flights from './Flights'
 import Passengers from './Passengers'
 
+// Libraries
+import ReactBSAlert from 'react-bootstrap-sweetalert'
+
 const styles = {
 	app_title: {
 		paddingTop: '20px',
@@ -35,8 +38,7 @@ export default function FlightSuretyDapp({ network }) {
 	)
 
 	// Utility
-	const [visible, setVisible] = useState(false)
-	const [message, setMessage] = useState()
+	const [alert, setAlert] = React.useState(null)
 
 	// Initialize blockchain
 	useEffect(() => {
@@ -52,12 +54,23 @@ export default function FlightSuretyDapp({ network }) {
 		web3.eth.getAccounts().then((accounts) => updateUser(accounts[0]))
 	}, [airlines])
 
+	React.useEffect(() => {
+		return function cleanup() {
+			var id = window.setTimeout(null, 0)
+			while (id--) {
+				window.clearTimeout(id)
+			}
+		}
+	}, [])
+
 	async function updateUser(address) {
 		const balance = parseFloat(
 			web3.utils.fromWei(await web3.eth.getBalance(address))
 		).toFixed(2)
+		let { name, role } = getUserDetails(address)
 		setUser({
-			role: getUserRole(address),
+			role,
+			name,
 			address: address,
 			balance: `${balance} ETH`,
 		})
@@ -76,9 +89,22 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function displayAlert(message) {
-		setVisible(true)
-		setMessage(message)
-		setTimeout(() => setVisible(false), 3000)
+		setAlert(
+			<ReactBSAlert
+				success
+				style={{ display: 'block', marginTop: '-100px' }}
+				title='Good job!'
+				onConfirm={() => hideAlert()}
+				onCancel={() => hideAlert()}
+				confirmBtnBsStyle='info'
+				btnSize=''>
+				{message}
+			</ReactBSAlert>
+		)
+	}
+
+	const hideAlert = () => {
+		setAlert(null)
 	}
 
 	function handleAddAirline(name, address) {
@@ -99,23 +125,32 @@ export default function FlightSuretyDapp({ network }) {
 
 	// Sets account role depending on the address selected
 	// Address that is neither or passenger or airline is defined as unknown
-	function getUserRole(address) {
-		let role = 'Unknown'
-		if (
-			airlines.filter(
-				(airline) => airline.address.toLowerCase() === address.toLowerCase()
-			).length > 0
-		) {
-			role = 'Airline'
-		} else if (
-			passengers.filter(
-				(passengers) =>
-					passengers.address.toLowerCase() === address.toLowerCase()
-			).length > 0
-		) {
-			role = 'Passenger'
+	function getUserDetails(address) {
+		let _user = {
+			name: 'Unknown',
+			role: 'Unknown',
 		}
-		return role
+
+		let _airlines = airlines.filter(
+			(airline) => airline.address.toLowerCase() === address.toLowerCase()
+		)
+		if (_airlines.length > 0) {
+			_user = {
+				name: _airlines[0].name,
+				role: 'Airline',
+			}
+		}
+
+		let _passengers = passengers.filter(
+			(passengers) => passengers.address.toLowerCase() === address.toLowerCase()
+		)
+		if (_passengers.length > 0) {
+			_user = {
+				name: _passengers[0].name,
+				role: 'Passenger',
+			}
+		}
+		return _user
 	}
 
 	function handleAirlineEdit(airline) {
@@ -145,9 +180,7 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Registered',
 				})
-				displayAlert(
-					`Successfully registered airline ${event.name} with address ${event.airline}`
-				)
+				displayAlert(`Successfully registered airline ${event.name}`)
 			},
 		}
 
@@ -159,9 +192,7 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Queued',
 				})
-				displayAlert(
-					`Successfully queued airline ${event.name} with address ${event.airline}`
-				)
+				displayAlert(`Successfully queued airline ${event.name}`)
 			},
 		}
 
@@ -173,18 +204,14 @@ export default function FlightSuretyDapp({ network }) {
 					address: event.airline,
 					status: 'Funded',
 				})
-				displayAlert(
-					`Successfully funded airline ${event.name} with address ${event.airline}`
-				)
+				displayAlert(`Successfully funded airline ${event.name}`)
 			},
 		}
 
 		const AirlineVoted = {
 			callback: (event) => {
 				console.log('AirlineVoted', event)
-				displayAlert(
-					`Successfully voted for airline ${event.name} from address ${event.fromAirline}`
-				)
+				displayAlert(`Successfully voted for airline ${event.name}`)
 			},
 		}
 
@@ -234,12 +261,7 @@ export default function FlightSuretyDapp({ network }) {
 	return (
 		<React.Fragment>
 			<Container className='tim-container'>
-				<Alert
-					color='success'
-					isOpen={visible}
-					toggle={() => setVisible(false)}>
-					{message}
-				</Alert>
+				{alert}
 
 				<h1 style={styles.app_title} className='text-center'>
 					Flight Surety

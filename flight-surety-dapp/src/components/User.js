@@ -27,6 +27,7 @@ export default function User({ user }) {
 					<thead>
 						<tr className='text-left'>
 							<th>Role</th>
+							<th>Name</th>
 							<th>Address</th>
 							<th>Balance</th>
 						</tr>
@@ -34,6 +35,7 @@ export default function User({ user }) {
 					<tbody>
 						<tr className='text-left'>
 							<td>{user.role}</td>
+							<td>{user.name}</td>
 							<td>{user.address}</td>
 							<td>{user.balance}</td>
 						</tr>
