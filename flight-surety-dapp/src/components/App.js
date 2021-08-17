@@ -38,7 +38,7 @@ export default function FlightSuretyDapp({ network }) {
 	const [visible, setVisible] = useState(false)
 	const [message, setMessage] = useState()
 
-	// Initialize web3
+	// Initialize blockchain
 	useEffect(() => {
 		loadBlockchainData(network)
 	}, [network])
@@ -49,7 +49,8 @@ export default function FlightSuretyDapp({ network }) {
 		window.ethereum.on('accountsChanged', (accounts) => {
 			updateUser(accounts[0])
 		})
-	}, [user, getUserRole])
+		web3.eth.getAccounts().then((accounts) => updateUser(accounts[0]))
+	}, [airlines])
 
 	async function updateUser(address) {
 		const balance = parseFloat(
@@ -63,10 +64,6 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	async function loadBlockchainData(network) {
-		// Set eth accounts
-		const accounts = await web3.eth.getAccounts()
-		updateUser(accounts[0])
-
 		// Set contract
 		const contract = new web3.eth.Contract(
 			FlightSuretyApp.abi,
@@ -237,7 +234,10 @@ export default function FlightSuretyDapp({ network }) {
 	return (
 		<React.Fragment>
 			<Container className='tim-container'>
-				<Alert color='info' isOpen={visible} toggle={() => setVisible(false)}>
+				<Alert
+					color='success'
+					isOpen={visible}
+					toggle={() => setVisible(false)}>
 					{message}
 				</Alert>
 

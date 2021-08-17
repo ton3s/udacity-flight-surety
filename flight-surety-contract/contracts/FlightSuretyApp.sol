@@ -104,6 +104,12 @@ contract FlightSuretyApp {
         require(airlines[airline].status == AirlineState.REGISTERED || airlines[airline].status == AirlineState.FUNDED, "Airline is not registered or funded");
         _;
     }
+
+    // Check if the airline address has already been registered
+    modifier isNewAirline(address airline) {
+        require(airlines[airline].exists == false, "Airline has already been registered with this address");
+        _;
+    }
     
     modifier isFlightRegistered(address airline, string memory flightNumber, uint256 flightTime) {
         bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
@@ -166,7 +172,9 @@ contract FlightSuretyApp {
     // *******************
     // Airline functions
     // *******************
-    function registerAirline(string memory name, address airline) isAirlineRegisteredFunded(msg.sender) public {
+    function registerAirline(string memory name, address airline) 
+        isNewAirline(airline)
+        isAirlineRegisteredFunded(msg.sender) public {
         
         // Queue the airline if the airline registration limit is exceeded
         if (registeredAirlinesCount >= AIRLINES_REGISTRATION_LIMIT) {
