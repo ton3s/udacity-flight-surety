@@ -75,7 +75,7 @@ export default function FlightSuretyDapp({ network }) {
 		setFlightSurety(contract)
 
 		// Setup web3 event listeners
-		setWeb3EventListeners(web3, contract)
+		setWeb3EventListeners(contract)
 	}
 
 	function displayAlert(message) {
@@ -138,7 +138,7 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
-	function setWeb3EventListeners(web3, contract) {
+	function setWeb3EventListeners(contract) {
 		// Airlines
 		const AirlineRegistered = {
 			callback: (event) => {
@@ -191,7 +191,7 @@ export default function FlightSuretyDapp({ network }) {
 			},
 		}
 
-		subscribeAllEvents(web3, contract, {
+		subscribeAllEvents(contract, {
 			AirlineRegistered,
 			AirlineQueued,
 			AirlineFunded,
@@ -199,10 +199,10 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
-	function subscribeAllEvents(web3, contract, events) {
+	function subscribeAllEvents(contract, events) {
 		const eventInterfaces = {}
 		Object.keys(events).forEach((event) => {
-			const eventInterface = getEventJSONInterface(web3, contract, event)
+			const eventInterface = getEventJSONInterface(contract, event)
 			eventInterfaces[eventInterface.signature] = eventInterface
 		})
 		web3.eth.subscribe(
@@ -227,7 +227,7 @@ export default function FlightSuretyDapp({ network }) {
 		)
 	}
 
-	function getEventJSONInterface(web3, contract, eventName) {
+	function getEventJSONInterface(contract, eventName) {
 		return web3.utils._.find(
 			contract._jsonInterface,
 			(o) => o.name === eventName && o.type === 'event'
@@ -248,7 +248,7 @@ export default function FlightSuretyDapp({ network }) {
 					Insurance for your flight on the blockchain!
 				</h4>
 
-				<User flightSurety={flightSurety} user={user} web3={web3} />
+				<User user={user} />
 				<Airlines
 					airlines={airlines}
 					handleAddAirline={handleAddAirline}
