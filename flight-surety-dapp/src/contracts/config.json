@@ -1,7 +1,7 @@
 {
 	"localhost": {
 		"url": "http://localhost:7545",
-		"appAddress": "0xD764b3716C56EfA469198326b4Ad8a9b9D1B92F0"
+		"appAddress": "0x8F07Cf0963d180ccA92994749349168c9C21Bc78"
 	},
 	"firstAirline": {
 		"name": "Udacity Airlines",

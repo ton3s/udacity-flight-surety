@@ -26,14 +26,13 @@ export default function FlightSuretyDapp({ network }) {
 	const [airlines, setAirlines] = useState([Config.firstAirline])
 	const [flights, setFlights] = useState([])
 	const [passengers, setPassengers] = useState([])
-
-	// User
-	const [account, setAccount] = useState()
-	const [role, setRole] = useState()
+	const [user, setUser] = useState({})
 
 	// Contract
 	const [flightSurety, setFlightSurety] = useState()
-	const [web3, setWeb3] = useState()
+	const [web3, setWeb3] = useState(
+		new Web3(Web3.givenProvider || Config[network].url)
+	)
 
 	// Utility
 	const [visible, setVisible] = useState(false)
@@ -48,18 +47,25 @@ export default function FlightSuretyDapp({ network }) {
 	useEffect(() => {
 		// Check if the user changes accounts
 		window.ethereum.on('accountsChanged', (accounts) => {
-			setAccount(accounts[0])
-			setUserRole(accounts[0])
+			updateUser(accounts[0])
 		})
-	}, [airlines, setAirlines])
+	}, [user, getUserRole])
+
+	async function updateUser(address) {
+		const balance = parseFloat(
+			web3.utils.fromWei(await web3.eth.getBalance(address))
+		).toFixed(2)
+		setUser({
+			role: getUserRole(address),
+			address: address,
+			balance: `${balance} ETH`,
+		})
+	}
 
 	async function loadBlockchainData(network) {
-		const web3 = new Web3(Web3.givenProvider || Config[network].url)
-
 		// Set eth accounts
 		const accounts = await web3.eth.getAccounts()
-		setAccount(accounts[0])
-		setUserRole(accounts[0])
+		updateUser(accounts[0])
 
 		// Set contract
 		const contract = new web3.eth.Contract(
@@ -70,7 +76,6 @@ export default function FlightSuretyDapp({ network }) {
 
 		// Setup web3 event listeners
 		setWeb3EventListeners(web3, contract)
-		setWeb3(web3)
 	}
 
 	function displayAlert(message) {
@@ -80,7 +85,9 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function handleAddAirline(name, address) {
-		flightSurety.methods.registerAirline(name, address).send({ from: account })
+		flightSurety.methods
+			.registerAirline(name, address)
+			.send({ from: user.address })
 	}
 
 	function handleFundAirline(account) {
@@ -90,28 +97,28 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function handleVoteAirline(airline) {
-		flightSurety.methods.voteAirline(airline).send({ from: account })
+		flightSurety.methods.voteAirline(airline).send({ from: user.address })
 	}
 
 	// Sets account role depending on the address selected
 	// Address that is neither or passenger or airline is defined as unknown
-	function setUserRole(account) {
+	function getUserRole(address) {
+		let role = 'Unknown'
 		if (
 			airlines.filter(
-				(airline) => airline.address.toLowerCase() === account.toLowerCase()
+				(airline) => airline.address.toLowerCase() === address.toLowerCase()
 			).length > 0
 		) {
-			setRole('Airline')
+			role = 'Airline'
 		} else if (
 			passengers.filter(
 				(passengers) =>
-					passengers.address.toLowerCase() === account.toLowerCase()
+					passengers.address.toLowerCase() === address.toLowerCase()
 			).length > 0
 		) {
-			setRole('Passenger')
-		} else {
-			setRole('Unknown')
+			role = 'Passenger'
 		}
+		return role
 	}
 
 	function handleAirlineEdit(airline) {
@@ -241,7 +248,7 @@ export default function FlightSuretyDapp({ network }) {
 					Insurance for your flight on the blockchain!
 				</h4>
 
-				<User flightSurety={flightSurety} account={account} role={role} />
+				<User flightSurety={flightSurety} user={user} web3={web3} />
 				<Airlines
 					airlines={airlines}
 					handleAddAirline={handleAddAirline}
