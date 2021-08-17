@@ -8,6 +8,8 @@ import {
 	InputGroup,
 	Form,
 	Input,
+	Label,
+	FormGroup,
 } from 'reactstrap'
 
 const styles = {
@@ -20,7 +22,12 @@ const styles = {
 	},
 }
 
-export default function AddAirlines({ isOpen, toggle, handleAddAirline }) {
+export default function AddAirlines({
+	isOpen,
+	toggle,
+	handleAddAirline,
+	accounts,
+}) {
 	const { register, handleSubmit, reset } = useForm()
 
 	function onSubmit(airline) {
@@ -45,22 +52,24 @@ export default function AddAirlines({ isOpen, toggle, handleAddAirline }) {
 					</div>
 					<div className='modal-body'>
 						<CardBody>
-							<InputGroup>
+							<FormGroup>
+								<Label for='name'>Airline Name</Label>
 								<Input
+									type='text'
 									name='name'
 									placeholder='Airline Name'
-									type='text'
 									{...register('name')}
 								/>
-							</InputGroup>
-							<InputGroup>
+							</FormGroup>
+							<FormGroup>
+								<Label for='address'>Airline Address</Label>
 								<Input
+									type='text'
 									name='address'
 									placeholder='Airline Address'
-									type='text'
 									{...register('address')}
 								/>
-							</InputGroup>
+							</FormGroup>
 						</CardBody>
 					</div>
 					<div className='modal-footer text-center'>

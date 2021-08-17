@@ -125,7 +125,7 @@ export default function FlightSuretyDapp({ network }) {
 		flightSurety.methods
 			.voteAirline(airline)
 			.send({ from: user.address })
-			.catch((err) => console.log('handleVoteAirline: ', err))
+			.catch((err) => console.log('handleAddAirline: ', err))
 	}
 
 	// Sets account role depending on the address selected

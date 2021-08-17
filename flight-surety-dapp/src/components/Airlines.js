@@ -28,6 +28,7 @@ export default function Airlines({
 				isOpen={showAirlineModal}
 				toggle={setShowAirlineModal}
 				handleAddAirline={handleAddAirline}
+				airlines={airlines}
 			/>
 			<Card>
 				<CardBody className='text-center'>
