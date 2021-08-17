@@ -111,16 +111,21 @@ export default function FlightSuretyDapp({ network }) {
 		flightSurety.methods
 			.registerAirline(name, address)
 			.send({ from: user.address })
+			.catch((err) => console.log('handleAddAirline: ', err))
 	}
 
 	function handleFundAirline(account) {
 		flightSurety.methods
 			.fundAirline()
 			.send({ from: account, value: web3.utils.toWei('10', 'ether') })
+			.catch((err) => console.log('handleFundAirline: ', err))
 	}
 
 	function handleVoteAirline(airline) {
-		flightSurety.methods.voteAirline(airline).send({ from: user.address })
+		flightSurety.methods
+			.voteAirline(airline)
+			.send({ from: user.address })
+			.catch((err) => console.log('handleVoteAirline: ', err))
 	}
 
 	// Sets account role depending on the address selected
