@@ -35,8 +35,9 @@ export default function Flights({
 	function handleAddFlightModal() {
 		// Check that funded airline is currently selected
 		if (
+			user.role != 'Airline' ||
 			airlines.filter((airline) => airline.name === user.name)[0].status !=
-			'Funded'
+				'Funded'
 		) {
 			return displayAlert(
 				'Please select a funded airline in order to add a flight',

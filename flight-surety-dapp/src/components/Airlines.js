@@ -15,12 +15,29 @@ const styles = {
 }
 
 export default function Airlines({
+	user,
 	airlines,
 	handleAddAirline,
 	handleFundAirline,
 	handleVoteAirline,
+	displayAlert,
 }) {
 	const [showAirlineModal, setShowAirlineModal] = React.useState(false)
+
+	function handleAddAirlineModal() {
+		// Check that funded or registered airline is currently selected
+		if (
+			user.role != 'Airline' ||
+			airlines.filter((airline) => airline.name === user.name)[0].status ==
+				'Queued'
+		) {
+			return displayAlert(
+				'Only registered or funded airlines can register airlines',
+				'Error'
+			)
+		}
+		setShowAirlineModal(true)
+	}
 
 	return (
 		<>
@@ -78,7 +95,7 @@ export default function Airlines({
 					<Button
 						className='text-center'
 						color='primary'
-						onClick={() => setShowAirlineModal(true)}>
+						onClick={handleAddAirlineModal}>
 						Add Airline
 					</Button>
 				</CardBody>

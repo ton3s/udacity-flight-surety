@@ -336,10 +336,12 @@ export default function FlightSuretyDapp({ network }) {
 
 				<User user={user} />
 				<Airlines
+					user={user}
 					airlines={airlines}
 					handleAddAirline={handleAddAirline}
 					handleFundAirline={handleFundAirline}
 					handleVoteAirline={handleVoteAirline}
+					displayAlert={displayAlert}
 				/>
 				<Flights
 					user={user}
