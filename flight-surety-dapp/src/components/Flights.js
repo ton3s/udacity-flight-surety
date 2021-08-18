@@ -58,36 +58,47 @@ export default function Flights({
 			<Card>
 				<CardBody className='text-center'>
 					<CardTitle style={styles.card_title}>Flights</CardTitle>
-					<Table>
-						<thead>
-							<tr className='text-left'>
-								<th className='text-center'>#</th>
-								<th>Name</th>
-								<th>Airline</th>
-								<th>Time</th>
-								<th>Status</th>
-								<th className='text-right'>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr className='text-left'>
-								<td className='text-center'>1</td>
-								<td>UA123</td>
-								<td>Udacity Airlines</td>
-								<td>Monday, August 16, 2021 2:26:41 AM</td>
-								<td>On Time</td>
-								<td className='td-actions text-right'>
-									<Button
-										style={styles.button_action}
-										color='primary'
-										type='button'
-										onClick={() => handleFlightStatus(flights)}>
-										Status
-									</Button>
-								</td>
-							</tr>
-						</tbody>
-					</Table>
+					{flights.length === 0 && (
+						<blockquote className='blockquote text-center'>
+							<p className='mb-0'>
+								Please register a flight from a funded airline
+							</p>
+						</blockquote>
+					)}
+					{flights.length > 0 && (
+						<Table>
+							<thead>
+								<tr className='text-left'>
+									<th className='text-center'>#</th>
+									<th>Name</th>
+									<th>Airline</th>
+									<th>Time</th>
+									<th>Status</th>
+									<th className='text-right'>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{flights.map((flight) => (
+									<tr className='text-left'>
+										<td className='text-center'>1</td>
+										<td>{flight.flightNumber}</td>
+										<td>{flight.airline}</td>
+										<td>{flight.flightTime}</td>
+										<td>{flight.status}</td>
+										<td className='td-actions text-right'>
+											<Button
+												style={styles.button_action}
+												color='primary'
+												type='button'
+												onClick={() => handleFlightStatus(flight)}>
+												Status
+											</Button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</Table>
+					)}
 					<Button
 						className='text-center'
 						color='primary'
