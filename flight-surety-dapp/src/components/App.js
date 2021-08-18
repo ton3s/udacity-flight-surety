@@ -301,13 +301,13 @@ export default function FlightSuretyDapp({ network }) {
 				const flight = {
 					flightNumber: event.flightNumber,
 					flightTime: event.flightTime,
-					airline: event.airline,
 				}
 				// Generate the hash for flightNumber, flightTime, airline
 				const hash = generateHash(flight)
 				handleFlightEdit({
 					id: hash,
 					status: 'Unknown',
+					airline: event.airline,
 					...flight,
 				})
 				displayAlert(

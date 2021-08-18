@@ -33,6 +33,8 @@ export default function AddFlight({
 	toggle,
 	handleAddFlight,
 	airline,
+	flights,
+	displayAlert,
 }) {
 	const newFlight = {
 		id: uuidv4(),
@@ -47,12 +49,31 @@ export default function AddFlight({
 		// Convert flight time to epoch time
 		flight.flightTime = moment(flight.flightTime).valueOf()
 
-		// Submit transaction to the smart contract
-		handleAddFlight(flight)
+		// Check if this flight/time combination has already been register
+		if (isNewFlight(flight)) {
+			// Submit transaction to the smart contract
+			handleAddFlight(flight)
 
-		// Reset modal
-		setFlight(newFlight)
-		toggle(false)
+			// Reset modal
+			setFlight(newFlight)
+			toggle(false)
+		} else {
+			displayAlert(
+				`This flight number and flight time has already been registered`,
+				'Error'
+			)
+		}
+	}
+
+	function isNewFlight(flight) {
+		// Check against existing flights
+		return (
+			flights.filter(
+				(f) =>
+					f.flightNumber == flight.flightNumber &&
+					f.flightTime == flight.flightTime
+			).length === 0
+		)
 	}
 
 	function handleChange(changes) {

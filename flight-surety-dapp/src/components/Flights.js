@@ -58,6 +58,8 @@ export default function Flights({
 				toggle={setShowFlightModal}
 				handleAddFlight={handleAddFlight}
 				airline={user.name}
+				flights={flights}
+				displayAlert={displayAlert}
 			/>
 			<Card>
 				<CardBody className='text-center'>
@@ -82,9 +84,9 @@ export default function Flights({
 								</tr>
 							</thead>
 							<tbody>
-								{flights.map((flight) => (
+								{flights.map((flight, index) => (
 									<tr key={flight.id} className='text-left'>
-										<td className='text-center'>1</td>
+										<td className='text-center'>{index + 1}</td>
 										<td>{flight.flightNumber}</td>
 										<td>{getAirline(flight.airline).name}</td>
 										<td>
