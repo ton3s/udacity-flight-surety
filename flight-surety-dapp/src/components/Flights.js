@@ -23,19 +23,36 @@ const styles = {
 }
 
 export default function Flights({
+	user,
 	airlines,
 	flights,
 	handleAddFlight,
 	handleFlightStatus,
+	displayAlert,
 }) {
 	const [showFlightModal, setShowFlightModal] = React.useState(false)
+
+	function handleAddFlightModal() {
+		// Check that funded airline is currently selected
+		if (
+			airlines.filter((airline) => airline.name === user.name)[0].status !=
+			'Funded'
+		) {
+			return displayAlert(
+				'Please select a funded airline in order to add a flight',
+				'Error'
+			)
+		}
+		setShowFlightModal(true)
+	}
+
 	return (
 		<>
 			<AddFlight
 				isOpen={showFlightModal}
 				toggle={setShowFlightModal}
 				handleAddAirline={handleAddFlight}
-				airlines={airlines}
+				airline={user.name}
 			/>
 			<Card>
 				<CardBody className='text-center'>
@@ -73,7 +90,7 @@ export default function Flights({
 					<Button
 						className='text-center'
 						color='primary'
-						onClick={() => setShowFlightModal(true)}>
+						onClick={handleAddFlightModal}>
 						Add Flight
 					</Button>
 				</CardBody>

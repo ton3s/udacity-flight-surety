@@ -342,10 +342,12 @@ export default function FlightSuretyDapp({ network }) {
 					handleVoteAirline={handleVoteAirline}
 				/>
 				<Flights
+					user={user}
 					airlines={airlines}
 					flights={flights}
 					handleAddFlight={handleAddFlight}
 					handleFlightStatus={handleFlightStatus}
+					displayAlert={displayAlert}
 				/>
 				<Passengers flightSurety={flightSurety} />
 			</Container>

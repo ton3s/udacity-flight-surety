@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
 	Card,
+	CardTitle,
 	CardBody,
 	Button,
 	Modal,
@@ -13,6 +14,10 @@ import {
 import Datetime from 'react-datetime'
 
 const styles = {
+	card_title: {
+		fontSize: '24px',
+		marginBottom: '20px',
+	},
 	button_modal: {
 		fontSize: '16px',
 		paddingTop: '15px',
@@ -26,13 +31,14 @@ export default function AddFlight({
 	isOpen,
 	toggle,
 	handleAddFlight,
-	airlines,
+	airline,
 }) {
 	const newFlight = {
 		id: uuidv4(),
 		flightNumber: '',
 		flightTime: '',
-		airline: airlines[0].name,
+		airline,
+		status: 'Unknown',
 	}
 	const [flight, setFlight] = useState(newFlight)
 
@@ -51,7 +57,7 @@ export default function AddFlight({
 	return (
 		<Modal isOpen={isOpen} toggle={() => toggle(!isOpen)}>
 			<Form>
-				<Card className=' card-login card-plain'>
+				<Card className='card-login card-plain'>
 					<div className='modal-header justify-content-center'>
 						<button
 							aria-label='Close'
@@ -61,6 +67,7 @@ export default function AddFlight({
 							onClick={() => toggle(!isOpen)}>
 							<span aria-hidden={true}>×</span>
 						</button>
+						<h5 className='modal-title'>{airline}</h5>
 					</div>
 					<div className='modal-body'>
 						<CardBody>
@@ -75,24 +82,6 @@ export default function AddFlight({
 										handleChange({ flightNumber: event.target.value })
 									}
 								/>
-							</FormGroup>
-							<FormGroup>
-								<Label for='airline'>Airline</Label>
-								<Input
-									type='select'
-									name='airline'
-									id='airline'
-									onChange={(event) =>
-										handleChange({ airline: event.target.value })
-									}>
-									{airlines
-										.filter((airline) => airline.status === 'Funded')
-										.map((airline, index) => (
-											<option key={index} value={airline.name}>
-												{airline.name}
-											</option>
-										))}
-								</Input>
 							</FormGroup>
 							<FormGroup>
 								<Label for='flightTime'>Flight Time</Label>
