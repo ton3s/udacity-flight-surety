@@ -76,6 +76,36 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
+	// Sets account role depending on the address selected
+	// Address that is neither or passenger or airline is defined as unknown
+	function getUserDetails(address) {
+		let _user = {
+			name: 'Unknown',
+			role: 'Unknown',
+		}
+
+		let _airlines = airlines.filter(
+			(airline) => airline.address.toLowerCase() === address.toLowerCase()
+		)
+		if (_airlines.length > 0) {
+			_user = {
+				name: _airlines[0].name,
+				role: 'Airline',
+			}
+		}
+
+		let _passengers = passengers.filter(
+			(passengers) => passengers.address.toLowerCase() === address.toLowerCase()
+		)
+		if (_passengers.length > 0) {
+			_user = {
+				name: _passengers[0].name,
+				role: 'Passenger',
+			}
+		}
+		return _user
+	}
+
 	async function loadBlockchainData(network) {
 		// Set contract
 		const contract = new web3.eth.Contract(
@@ -127,6 +157,7 @@ export default function FlightSuretyDapp({ network }) {
 		setAlert(null)
 	}
 
+	// Airline Handlers
 	function handleAddAirline(name, address) {
 		flightSurety.methods
 			.registerAirline(name, address)
@@ -166,36 +197,6 @@ export default function FlightSuretyDapp({ network }) {
 			})
 	}
 
-	// Sets account role depending on the address selected
-	// Address that is neither or passenger or airline is defined as unknown
-	function getUserDetails(address) {
-		let _user = {
-			name: 'Unknown',
-			role: 'Unknown',
-		}
-
-		let _airlines = airlines.filter(
-			(airline) => airline.address.toLowerCase() === address.toLowerCase()
-		)
-		if (_airlines.length > 0) {
-			_user = {
-				name: _airlines[0].name,
-				role: 'Airline',
-			}
-		}
-
-		let _passengers = passengers.filter(
-			(passengers) => passengers.address.toLowerCase() === address.toLowerCase()
-		)
-		if (_passengers.length > 0) {
-			_user = {
-				name: _passengers[0].name,
-				role: 'Passenger',
-			}
-		}
-		return _user
-	}
-
 	function handleAirlineEdit(airline) {
 		setAirlines((airlines) => {
 			const isNewAirline =
@@ -211,6 +212,26 @@ export default function FlightSuretyDapp({ network }) {
 				  )
 			return updatedAirlines
 		})
+	}
+
+	// Flight Handlers
+	function handleAddFlight(flight) {
+		// Check that a airline is the current selected account and is funded
+		const { flightNumber, flightTime, airline, status } = flight
+		flightSurety.methods
+			.registerFlight(flightNumber, flightTime)
+			.send({ from: user.address })
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to add a flight. Please check the console for more details.',
+					'Error'
+				)
+			})
+	}
+
+	function handleFlightStatus(flight) {
+		// Check the flight status by calling the smart contract which then queries the oracle
 	}
 
 	function setWeb3EventListeners(contract) {
@@ -320,7 +341,12 @@ export default function FlightSuretyDapp({ network }) {
 					handleFundAirline={handleFundAirline}
 					handleVoteAirline={handleVoteAirline}
 				/>
-				<Flights flightSurety={flightSurety} />
+				<Flights
+					airlines={airlines}
+					flights={flights}
+					handleAddFlight={handleAddFlight}
+					handleFlightStatus={handleFlightStatus}
+				/>
 				<Passengers flightSurety={flightSurety} />
 			</Container>
 		</React.Fragment>

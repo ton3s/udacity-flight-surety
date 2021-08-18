@@ -36,7 +36,7 @@ export default function Airlines({
 					<Table>
 						<thead>
 							<tr className='text-left'>
-								<th>#</th>
+								<th className='text-center'>#</th>
 								<th>Name</th>
 								<th>Address</th>
 								<th>Status</th>
