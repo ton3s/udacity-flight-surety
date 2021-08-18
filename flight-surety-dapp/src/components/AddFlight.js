@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
 	Card,
-	CardTitle,
 	CardBody,
 	Button,
 	Modal,
@@ -32,30 +31,32 @@ export default function AddFlight({
 	isOpen,
 	toggle,
 	handleAddFlight,
-	airline,
+	user,
 	flights,
 	displayAlert,
 }) {
 	const newFlight = {
-		id: uuidv4(),
 		flightNumber: '',
 		flightTime: '',
-		airline,
+		airline: user.address,
 		status: 'Unknown',
 	}
 	const [flight, setFlight] = useState(newFlight)
 
-	function handleAdd(flight) {
-		// Convert flight time to epoch time
-		flight.flightTime = moment(flight.flightTime).valueOf()
+	function handleAdd({ flightNumber, flightTime }) {
+		newFlight.flightNumber = flightNumber
+		newFlight.flightTime = moment(flightTime).valueOf()
 
 		// Check if this flight/time combination has already been register
-		if (isNewFlight(flight)) {
+		if (isNewFlight(newFlight)) {
 			// Submit transaction to the smart contract
-			handleAddFlight(flight)
+			handleAddFlight(newFlight)
 
 			// Reset modal
-			setFlight(newFlight)
+			setFlight({
+				flightNumber: '',
+				flightTime: '',
+			})
 			toggle(false)
 		} else {
 			displayAlert(
@@ -70,8 +71,9 @@ export default function AddFlight({
 		return (
 			flights.filter(
 				(f) =>
-					f.flightNumber == flight.flightNumber &&
-					f.flightTime == flight.flightTime
+					f.flightNumber === flight.flightNumber &&
+					f.flightTime === flight.flightTime.toString() &&
+					f.airline === flight.airline
 			).length === 0
 		)
 	}
@@ -94,7 +96,7 @@ export default function AddFlight({
 							onClick={() => toggle(!isOpen)}>
 							<span aria-hidden={true}>×</span>
 						</button>
-						<h5 className='modal-title'>{airline}</h5>
+						<h5 className='modal-title'>{user.name}</h5>
 					</div>
 					<div className='modal-body'>
 						<CardBody>

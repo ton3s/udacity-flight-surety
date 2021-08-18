@@ -14,7 +14,7 @@ import Passengers from './Passengers'
 
 // Libraries
 import ReactBSAlert from 'react-bootstrap-sweetalert'
-import SHA256 from 'crypto-js/sha256'
+import CryptoJS from 'crypto-js'
 
 const styles = {
 	app_title: {
@@ -241,10 +241,11 @@ export default function FlightSuretyDapp({ network }) {
 
 	function handleFlightEdit(flight) {
 		setFlights((flights) => {
-			const isNewFlight = flights.filter((f) => f.id === flight.id).length === 0
+			const isNewFlight =
+				flights.filter((f) => f.flightKey === flight.flightKey).length === 0
 			const updatedFlights = isNewFlight
 				? [...flights, flight]
-				: flights.map((f) => (f.id === flight.id ? flight : f))
+				: flights.map((f) => (f.flightKey === flight.flightKey ? flight : f))
 			return updatedFlights
 		})
 	}
@@ -296,22 +297,15 @@ export default function FlightSuretyDapp({ network }) {
 
 		// Flights events
 		const FlightRegistered = {
-			callback: (event) => {
-				console.log('FlightRegistered', event)
-				const flight = {
-					flightNumber: event.flightNumber,
-					flightTime: event.flightTime,
-				}
-				// Generate the hash for flightNumber, flightTime, airline
-				const hash = generateHash(flight)
+			callback: (flight) => {
+				console.log('FlightRegistered', flight)
 				handleFlightEdit({
-					id: hash,
-					status: 'Unknown',
-					airline: event.airline,
 					...flight,
+					status: 'Unknown',
 				})
+				console.log(flight)
 				displayAlert(
-					`Successfully registered flight ${event.flightNumber}`,
+					`Successfully registered flight ${flight.flightNumber}`,
 					'Success'
 				)
 			},
@@ -362,8 +356,10 @@ export default function FlightSuretyDapp({ network }) {
 		)
 	}
 
-	function generateHash(obj) {
-		return SHA256(JSON.stringify(obj))
+	function generateHash(data) {
+		const sha256 = CryptoJS.SHA256(JSON.stringify(data).toString())
+		var base64 = CryptoJS.enc.Base64.stringify(sha256)
+		return base64
 	}
 
 	return (

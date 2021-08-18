@@ -57,7 +57,7 @@ export default function Flights({
 				isOpen={showFlightModal}
 				toggle={setShowFlightModal}
 				handleAddFlight={handleAddFlight}
-				airline={user.name}
+				user={user}
 				flights={flights}
 				displayAlert={displayAlert}
 			/>
@@ -85,7 +85,7 @@ export default function Flights({
 							</thead>
 							<tbody>
 								{flights.map((flight, index) => (
-									<tr key={flight.id} className='text-left'>
+									<tr key={flight.flightKey} className='text-left'>
 										<td className='text-center'>{index + 1}</td>
 										<td>{flight.flightNumber}</td>
 										<td>{getAirline(flight.airline).name}</td>
