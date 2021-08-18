@@ -12,6 +12,9 @@ import {
 // Components
 import AddFlight from './AddFlight'
 
+// Libraries
+import moment from 'moment'
+
 const styles = {
 	card_title: {
 		fontSize: '24px',
@@ -29,6 +32,7 @@ export default function Flights({
 	handleAddFlight,
 	handleFlightStatus,
 	displayAlert,
+	getAirline,
 }) {
 	const [showFlightModal, setShowFlightModal] = React.useState(false)
 
@@ -52,7 +56,7 @@ export default function Flights({
 			<AddFlight
 				isOpen={showFlightModal}
 				toggle={setShowFlightModal}
-				handleAddAirline={handleAddFlight}
+				handleAddFlight={handleAddFlight}
 				airline={user.name}
 			/>
 			<Card>
@@ -79,11 +83,15 @@ export default function Flights({
 							</thead>
 							<tbody>
 								{flights.map((flight) => (
-									<tr className='text-left'>
+									<tr key={flight.id} className='text-left'>
 										<td className='text-center'>1</td>
 										<td>{flight.flightNumber}</td>
-										<td>{flight.airline}</td>
-										<td>{flight.flightTime}</td>
+										<td>{getAirline(flight.airline).name}</td>
+										<td>
+											{moment(parseInt(flight.flightTime)).format(
+												'dddd, MMMM Do YYYY, h:mm:ss a'
+											)}
+										</td>
 										<td>{flight.status}</td>
 										<td className='td-actions text-right'>
 											<Button

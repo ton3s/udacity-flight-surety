@@ -12,6 +12,7 @@ import {
 	FormGroup,
 } from 'reactstrap'
 import Datetime from 'react-datetime'
+import moment from 'moment'
 
 const styles = {
 	card_title: {
@@ -43,10 +44,15 @@ export default function AddFlight({
 	const [flight, setFlight] = useState(newFlight)
 
 	function handleAdd(flight) {
-		toggle(false)
-		// handleAddFlight(flight.name, flight.address)
-		console.log(flight)
+		// Convert flight time to epoch time
+		flight.flightTime = moment(flight.flightTime).valueOf()
+
+		// Submit transaction to the smart contract
+		handleAddFlight(flight)
+
+		// Reset modal
 		setFlight(newFlight)
+		toggle(false)
 	}
 
 	function handleChange(changes) {

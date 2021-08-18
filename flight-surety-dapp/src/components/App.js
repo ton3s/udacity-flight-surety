@@ -14,6 +14,7 @@ import Passengers from './Passengers'
 
 // Libraries
 import ReactBSAlert from 'react-bootstrap-sweetalert'
+import SHA256 from 'crypto-js/sha256'
 
 const styles = {
 	app_title: {
@@ -214,10 +215,14 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
+	function getAirline(address) {
+		return airlines.filter(
+			(airline) => airline.address.toLowerCase() === address.toLowerCase()
+		)[0]
+	}
+
 	// Flight Handlers
-	function handleAddFlight(flight) {
-		// Check that a airline is the current selected account and is funded
-		const { flightNumber, flightTime, airline, status } = flight
+	function handleAddFlight({ flightNumber, flightTime }) {
 		flightSurety.methods
 			.registerFlight(flightNumber, flightTime)
 			.send({ from: user.address })
@@ -234,8 +239,18 @@ export default function FlightSuretyDapp({ network }) {
 		// Check the flight status by calling the smart contract which then queries the oracle
 	}
 
+	function handleFlightEdit(flight) {
+		setFlights((flights) => {
+			const isNewFlight = flights.filter((f) => f.id === flight.id).length === 0
+			const updatedFlights = isNewFlight
+				? [...flights, flight]
+				: flights.map((f) => (f.id === flight.id ? flight : f))
+			return updatedFlights
+		})
+	}
+
 	function setWeb3EventListeners(contract) {
-		// Airlines
+		// Airlines events
 		const AirlineRegistered = {
 			callback: (event) => {
 				console.log('AirlineRegistered', event)
@@ -279,11 +294,35 @@ export default function FlightSuretyDapp({ network }) {
 			},
 		}
 
+		// Flights events
+		const FlightRegistered = {
+			callback: (event) => {
+				console.log('FlightRegistered', event)
+				const flight = {
+					flightNumber: event.flightNumber,
+					flightTime: event.flightTime,
+					airline: event.airline,
+				}
+				// Generate the hash for flightNumber, flightTime, airline
+				const hash = generateHash(flight)
+				handleFlightEdit({
+					id: hash,
+					status: 'Unknown',
+					...flight,
+				})
+				displayAlert(
+					`Successfully registered flight ${event.flightNumber}`,
+					'Success'
+				)
+			},
+		}
+
 		subscribeAllEvents(contract, {
 			AirlineRegistered,
 			AirlineQueued,
 			AirlineFunded,
 			AirlineVoted,
+			FlightRegistered,
 		})
 	}
 
@@ -315,11 +354,16 @@ export default function FlightSuretyDapp({ network }) {
 		)
 	}
 
+	// Utility functions
 	function getEventJSONInterface(contract, eventName) {
 		return web3.utils._.find(
 			contract._jsonInterface,
 			(o) => o.name === eventName && o.type === 'event'
 		)
+	}
+
+	function generateHash(obj) {
+		return SHA256(JSON.stringify(obj))
 	}
 
 	return (
@@ -350,6 +394,7 @@ export default function FlightSuretyDapp({ network }) {
 					handleAddFlight={handleAddFlight}
 					handleFlightStatus={handleFlightStatus}
 					displayAlert={displayAlert}
+					getAirline={getAirline}
 				/>
 				<Passengers flightSurety={flightSurety} />
 			</Container>
