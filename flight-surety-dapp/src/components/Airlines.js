@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Card, CardTitle, CardBody, Button, Table } from 'reactstrap'
 
 // Components
@@ -27,8 +27,8 @@ export default function Airlines({
 	function handleAddAirlineModal() {
 		// Check that funded or registered airline is currently selected
 		if (
-			user.role != 'Airline' ||
-			airlines.filter((airline) => airline.name === user.name)[0].status ==
+			user.role !== 'Airline' ||
+			airlines.filter((airline) => airline.name === user.name)[0].status ===
 				'Queued'
 		) {
 			return displayAlert(
@@ -68,7 +68,7 @@ export default function Airlines({
 									<td>{airline.address.toLowerCase()}</td>
 									<td>{airline.status}</td>
 									<td className='td-actions text-right'>
-										{airline.status == 'Registered' && (
+										{airline.status === 'Registered' && (
 											<Button
 												style={styles.button_action}
 												color='primary'
@@ -77,7 +77,7 @@ export default function Airlines({
 												Fund
 											</Button>
 										)}
-										{airline.status == 'Queued' && (
+										{airline.status === 'Queued' && (
 											<Button
 												style={styles.button_action}
 												className='text-center'

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Container, Alert, Button } from 'reactstrap'
+import { Container } from 'reactstrap'
 import Web3 from 'web3'
 
 // Contracts
@@ -14,7 +14,6 @@ import Passengers from './Passengers'
 
 // Libraries
 import ReactBSAlert from 'react-bootstrap-sweetalert'
-import CryptoJS from 'crypto-js'
 
 const styles = {
 	app_title: {
@@ -111,7 +110,8 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	async function loadBlockchainData(network) {
-		await window.ethereum.enable()
+		await window.ethereum.send('eth_requestAccounts')
+		window.ethereum.autoRefreshOnNetworkChange = false
 
 		// Set contract
 		const contract = new web3.eth.Contract(
@@ -359,12 +359,6 @@ export default function FlightSuretyDapp({ network }) {
 			contract._jsonInterface,
 			(o) => o.name === eventName && o.type === 'event'
 		)
-	}
-
-	function generateHash(data) {
-		const sha256 = CryptoJS.SHA256(JSON.stringify(data).toString())
-		var base64 = CryptoJS.enc.Base64.stringify(sha256)
-		return base64
 	}
 
 	return (

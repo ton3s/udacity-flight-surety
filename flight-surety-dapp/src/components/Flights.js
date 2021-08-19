@@ -1,13 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import {
-	Container,
-	Card,
-	CardBody,
-	CardTitle,
-	Button,
-	Alert,
-	Table,
-} from 'reactstrap'
+import React from 'react'
+import { Card, CardBody, CardTitle, Button, Table } from 'reactstrap'
 
 // Components
 import AddFlight from './AddFlight'
@@ -39,8 +31,8 @@ export default function Flights({
 	function handleAddFlightModal() {
 		// Check that funded airline is currently selected
 		if (
-			user.role != 'Airline' ||
-			airlines.filter((airline) => airline.name === user.name)[0].status !=
+			user.role !== 'Airline' ||
+			airlines.filter((airline) => airline.name === user.name)[0].status !==
 				'Funded'
 		) {
 			return displayAlert(
