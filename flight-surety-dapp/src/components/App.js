@@ -50,9 +50,12 @@ export default function FlightSuretyDapp({ network }) {
 	useEffect(() => {
 		// Check if the user changes accounts
 		window.ethereum.on('accountsChanged', (accounts) => {
-			updateUser(accounts[0])
+			if (accounts.length) updateUser(accounts[0])
 		})
-		web3.eth.getAccounts().then((accounts) => updateUser(accounts[0]))
+
+		web3.eth.getAccounts().then((accounts) => {
+			if (accounts.length) updateUser(accounts[0])
+		})
 	}, [airlines])
 
 	React.useEffect(() => {
@@ -108,6 +111,8 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	async function loadBlockchainData(network) {
+		await window.ethereum.enable()
+
 		// Set contract
 		const contract = new web3.eth.Contract(
 			FlightSuretyApp.abi,
