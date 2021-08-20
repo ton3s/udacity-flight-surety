@@ -255,6 +255,20 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
+	// Passengers Handlers
+	function handlePurchaseInsurance({ airline, flightNumber, flightTime }) {
+		flightSurety.methods
+			.buyInsurance(airline, flightNumber, flightTime)
+			.send({ from: user.address })
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to purchase insurance. Please check the console for more details.',
+					'Error'
+				)
+			})
+	}
+
 	function setWeb3EventListeners(contract) {
 		// Airlines events
 		const AirlineRegistered = {
@@ -391,7 +405,14 @@ export default function FlightSuretyDapp({ network }) {
 					displayAlert={displayAlert}
 					getAirline={getAirline}
 				/>
-				<Passengers flightSurety={flightSurety} />
+				<Passengers
+					user={user}
+					passengers={passengers}
+					flights={flights}
+					handlePurchaseInsurance={handlePurchaseInsurance}
+					displayAlert={displayAlert}
+					getAirline={getAirline}
+				/>
 			</Container>
 		</React.Fragment>
 	)
