@@ -26,6 +26,7 @@ contract FlightSuretyApp {
     }
     
     struct Passenger {
+        string name;
         uint withdrawBalance;
         bool exists;
         mapping(bytes32 => uint) insuredFlights;
@@ -63,7 +64,7 @@ contract FlightSuretyApp {
     event FlightRegistered(string flightNumber, uint flightTime, address airline, bytes32 flightKey);
     event FlightStatus(string flightNumber, uint flightTime, address airline, uint8 statusCode, bytes32 flightKey);
     event FlightCreditInsurees(string flightNumber, uint flightTime, address airline, bytes32 flightKey);
-    event PassengerPurchasedInsurance(bytes32 flightKey, address passenger, uint amount);
+    event PassengerPurchasedInsurance(string name, bytes32 flightKey, address passenger, uint amount);
     event PassengerWithdrawBalance(address passenger, uint amount);
     
     // Modifiers
@@ -283,7 +284,7 @@ contract FlightSuretyApp {
     // Passengers functions
     // *********************
     
-    function buyInsurance(address airline, string calldata flightNumber, uint256 flightTime) 
+    function buyInsurance(string calldata name, address airline, string calldata flightNumber, uint256 flightTime) 
         isAirlineFunded(airline)
         isFlightRegistered(airline, flightNumber, flightTime)
         paidEnoughForInsurance external payable {
@@ -308,6 +309,7 @@ contract FlightSuretyApp {
         // Register passenger if they have not been created previously
         if (passengers[msg.sender].exists == false) {
             Passenger storage passenger = passengers[msg.sender];
+            passenger.name = name;
             passenger.withdrawBalance = 0;
             passenger.exists = true;
         }
@@ -315,7 +317,7 @@ contract FlightSuretyApp {
         // Add balance paid for the insured flight
         passengers[msg.sender].insuredFlights[flightKey] = msg.value;
         
-        emit PassengerPurchasedInsurance(flightKey, msg.sender, msg.value);
+        emit PassengerPurchasedInsurance(name, flightKey, msg.sender, msg.value);
     }
     
     // Credit funds to passengers that have bought insurance and airline is late
