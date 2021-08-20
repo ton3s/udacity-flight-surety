@@ -255,11 +255,23 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
+	function getFlight(flightKey) {
+		return flights.filter(
+			(flight) => flight.flightKey.toLowerCase() === flightKey.toLowerCase()
+		)[0]
+	}
+
 	// Passengers Handlers
-	function handlePurchaseInsurance({ airline, flightNumber, flightTime }) {
+	function handlePurchaseInsurance(
+		passenger,
+		{ airline, flightNumber, flightTime }
+	) {
 		flightSurety.methods
-			.buyInsurance(airline, flightNumber, flightTime)
-			.send({ from: user.address })
+			.buyInsurance(passenger.name, airline, flightNumber, flightTime)
+			.send({
+				from: user.address,
+				value: web3.utils.toWei(passenger.insuredAmount.toString(), 'ether'),
+			})
 			.catch((err) => {
 				console.log(err.message)
 				displayAlert(
@@ -267,6 +279,26 @@ export default function FlightSuretyDapp({ network }) {
 					'Error'
 				)
 			})
+	}
+
+	function handlePassengerEdit(passenger) {
+		setPassengers((passengers) => {
+			const isNewPassenger =
+				passengers.filter(
+					(p) =>
+						p.flightKey === passenger.flightKey &&
+						p.address === passenger.address
+				).length === 0
+			const updatedPassengers = isNewPassenger
+				? [...passengers, passenger]
+				: passengers.map((p) =>
+						p.flightKey === passenger.flightKey &&
+						p.address === passenger.address
+							? passenger
+							: p
+				  )
+			return updatedPassengers
+		})
 	}
 
 	function setWeb3EventListeners(contract) {
@@ -330,12 +362,33 @@ export default function FlightSuretyDapp({ network }) {
 			},
 		}
 
+		// Passenger events
+		const PassengerPurchasedInsurance = {
+			callback: (passenger) => {
+				console.log('PassengerPurchasedInsurance', passenger)
+				const newPassenger = {
+					name: passenger.name,
+					address: passenger.passenger,
+					flightKey: passenger.flightKey,
+					insuredAmount: parseFloat(
+						web3.utils.fromWei(passenger.amount)
+					).toFixed(2),
+				}
+				handlePassengerEdit(newPassenger)
+				displayAlert(
+					`Successfully insured passenger ${newPassenger.name}`,
+					'Success'
+				)
+			},
+		}
+
 		subscribeAllEvents(contract, {
 			AirlineRegistered,
 			AirlineQueued,
 			AirlineFunded,
 			AirlineVoted,
 			FlightRegistered,
+			PassengerPurchasedInsurance,
 		})
 	}
 
@@ -412,6 +465,7 @@ export default function FlightSuretyDapp({ network }) {
 					handlePurchaseInsurance={handlePurchaseInsurance}
 					displayAlert={displayAlert}
 					getAirline={getAirline}
+					getFlight={getFlight}
 				/>
 			</Container>
 		</React.Fragment>

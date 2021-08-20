@@ -41,15 +41,20 @@ export default function PurchaseInsurance({
 		// Set default value if not set
 		if (!passenger.flight) passenger.flight = 0
 
-		console.log(passenger)
+		// Check if the amount sent is 1 ether or less
+		if (passenger.insuredAmount <= 0 || passenger.insuredAmount > 1) {
+			return displayAlert(
+				`Insured amount needs to be greater than 0 and less than or equal to 1 Ether`,
+				'Error'
+			)
+		}
+
+		// Get the flight
+		const flight = flights[passenger.flight]
 
 		reset()
 		toggle(false)
-		// handlePurchaseInsurance(
-		// 	passenger.airline,
-		// 	passenger.flightNumber,
-		// 	passenger.flightTime
-		// )
+		handlePurchaseInsurance(passenger, flight)
 	}
 
 	function getFlightDetails(flight) {
@@ -96,6 +101,18 @@ export default function PurchaseInsurance({
 										</option>
 									))}
 								</Input>
+							</FormGroup>
+							<FormGroup>
+								<Label for='insuredAmount'>
+									Insured Amount (Up to 1 Ether)
+								</Label>
+								<Input
+									type='number'
+									step='.01'
+									name='insuredAmount'
+									placeholder='Insured Amount'
+									{...register('insuredAmount')}
+								/>
 							</FormGroup>
 						</CardBody>
 					</div>

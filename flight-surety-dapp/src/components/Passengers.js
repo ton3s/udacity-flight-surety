@@ -21,6 +21,7 @@ export default function Passengers({
 	handlePurchaseInsurance,
 	displayAlert,
 	getAirline,
+	getFlight,
 }) {
 	const [showPurchaseInsuranceModal, setShowPurchaseInsuranceModal] =
 		React.useState(false)
@@ -34,6 +35,7 @@ export default function Passengers({
 		}
 		setShowPurchaseInsuranceModal(true)
 	}
+
 	return (
 		<>
 			<PurchaseInsurance
@@ -58,6 +60,7 @@ export default function Passengers({
 							<thead>
 								<tr className='text-left'>
 									<th className='text-center'>#</th>
+									<th>Name</th>
 									<th>Passenger Address</th>
 									<th>Flight Number</th>
 									<th>Flight Time</th>
@@ -69,10 +72,13 @@ export default function Passengers({
 								{passengers.map((passenger, index) => (
 									<tr key={index} className='text-left'>
 										<td className='text-center'>{index + 1}</td>
+										<td>{passenger.name}</td>
 										<td>{passenger.address}</td>
-										<td>{passenger.flightNumber}</td>
-										<td>{passenger.flightTime}</td>
-										<td>{getAirline(passenger.airline).name}</td>
+										<td>{getFlight(passenger.flightKey).flightNumber}</td>
+										<td>{getFlight(passenger.flightKey).flightTime}</td>
+										<td>
+											{getAirline(getFlight(passenger.flightKey).airline).name}
+										</td>
 										<td>{passenger.insuredAmount}</td>
 									</tr>
 								))}
