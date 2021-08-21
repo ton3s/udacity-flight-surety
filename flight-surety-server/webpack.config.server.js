@@ -4,7 +4,7 @@ const nodeExternals = require('webpack-node-externals')
 const StartServerPlugin = require('start-server-webpack-plugin')
 
 module.exports = {
-	entry: ['webpack/hot/poll?1000', './index'],
+	entry: ['regenerator-runtime/runtime.js', 'webpack/hot/poll?1000', './index'],
 	watch: true,
 	target: 'node',
 	externals: [
