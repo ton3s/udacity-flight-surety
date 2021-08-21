@@ -17,12 +17,6 @@ const styles = {
 	},
 }
 
-const flightStatus = {
-	0: 'Unknown',
-	10: 'On Time',
-	20: 'Late',
-}
-
 export default function Flights({
 	user,
 	airlines,
@@ -31,6 +25,7 @@ export default function Flights({
 	handleFlightStatus,
 	displayAlert,
 	getAirline,
+	flightStatus,
 }) {
 	const [showFlightModal, setShowFlightModal] = React.useState(false)
 

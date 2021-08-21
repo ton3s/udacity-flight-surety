@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardBody, CardTitle, Table } from 'reactstrap'
+import { Card, CardBody, CardTitle, Table, Button } from 'reactstrap'
 
 const styles = {
 	card_title: {
@@ -8,7 +8,7 @@ const styles = {
 	},
 }
 
-export default function User({ user }) {
+export default function User({ user, handleWithdrawAmountOwed }) {
 	return (
 		<Card>
 			<CardBody className='text-center'>
@@ -23,7 +23,10 @@ export default function User({ user }) {
 							<th>Address</th>
 							<th>Balance</th>
 							{user.role === 'Passenger' && (
-								<th className='text-center'>Amount Owed</th>
+								<>
+									<th className='text-center'>Amount Owed</th>
+									<th className='text-right'>Actions</th>
+								</>
 							)}
 						</tr>
 					</thead>
@@ -34,7 +37,18 @@ export default function User({ user }) {
 							<td>{user.address}</td>
 							<td>{user.balance}</td>
 							{user.role === 'Passenger' && (
-								<td className='text-center'>{user.amountOwed}</td>
+								<>
+									<td className='text-center'>{user.amountOwed} ETH</td>
+									<td className='td-actions text-right'>
+										<Button
+											style={styles.button_action}
+											color='primary'
+											type='button'
+											onClick={() => handleWithdrawAmountOwed(user.address)}>
+											Withdraw
+										</Button>
+									</td>
+								</>
 							)}
 						</tr>
 					</tbody>

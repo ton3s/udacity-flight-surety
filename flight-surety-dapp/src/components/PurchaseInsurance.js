@@ -52,6 +52,9 @@ export default function PurchaseInsurance({
 		// Get the flight
 		const flight = flights[passenger.flight]
 
+		// Get passenger name
+		if (user.role === 'Passenger') passenger.name = user.name
+
 		reset()
 		toggle(false)
 		handlePurchaseInsurance(passenger, flight)
@@ -76,18 +79,23 @@ export default function PurchaseInsurance({
 							onClick={() => toggle(!isOpen)}>
 							<span aria-hidden={true}>×</span>
 						</button>
+						{user.role === 'Passenger' && (
+							<h5 className='modal-title'>{user.name}</h5>
+						)}
 					</div>
 					<div className='modal-body'>
 						<CardBody>
-							<FormGroup>
-								<Label for='name'>Full Name</Label>
-								<Input
-									type='text'
-									name='name'
-									placeholder='Full Name'
-									{...register('name')}
-								/>
-							</FormGroup>
+							{user.role === 'Unknown' && (
+								<FormGroup>
+									<Label for='name'>Full Name</Label>
+									<Input
+										type='text'
+										name='name'
+										placeholder='Full Name'
+										{...register('name')}
+									/>
+								</FormGroup>
+							)}
 							<FormGroup>
 								<Label for='flight'>Flight</Label>
 								<Input

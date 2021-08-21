@@ -24,6 +24,12 @@ const styles = {
 	},
 }
 
+const flightStatus = {
+	0: 'Unknown',
+	10: 'On Time',
+	20: 'Late',
+}
+
 export default function FlightSuretyDapp({ network }) {
 	// Models
 	const [airlines, setAirlines] = useState([Config.firstAirline])
@@ -62,7 +68,7 @@ export default function FlightSuretyDapp({ network }) {
 		web3.eth.getAccounts().then((accounts) => {
 			if (accounts.length) updateUser(accounts[0])
 		})
-	}, [airlines, passengers])
+	}, [airlines, passengers, flights])
 
 	React.useEffect(() => {
 		return function cleanup() {
@@ -257,7 +263,7 @@ export default function FlightSuretyDapp({ network }) {
 				flight.airline,
 				flight.flightNumber,
 				flight.flightTime,
-				10
+				20
 			)
 			.send({ from: user.address })
 			.catch((err) => {
@@ -326,18 +332,34 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
-	function getPassenger(address) {
-		return passengers.filter(
-			(passenger) => passenger.address.toLowerCase() === address.toLowerCase()
-		)[0]
-	}
-
 	async function getPassengerAmountOwed(address) {
 		const passenger = await flightSurety.methods.passengers(address).call()
 		const amountOwed = parseFloat(
 			web3.utils.fromWei(passenger.withdrawBalance)
 		).toFixed(2)
-		return `${amountOwed} ETH`
+		return amountOwed
+	}
+
+	function handleWithdrawAmountOwed(address) {
+		if (!(user.amountOwed > 0)) {
+			return displayAlert(
+				'In order to withdraw, you need a balance of amount owed greater than 0',
+				'Error'
+			)
+		}
+
+		flightSurety.methods
+			.withdrawFunds()
+			.send({
+				from: user.address,
+			})
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to withdraw funds. Please check the console for more details.',
+					'Error'
+				)
+			})
 	}
 
 	function setWeb3EventListeners(contract) {
@@ -408,7 +430,9 @@ export default function FlightSuretyDapp({ network }) {
 					status: flight.statusCode,
 				})
 				displayAlert(
-					`Successfully registered flight ${flight.flightNumber}`,
+					`Status for flight ${flight.flightNumber} is ${
+						flightStatus[flight.statusCode]
+					}`,
 					'Success'
 				)
 			},
@@ -449,11 +473,9 @@ export default function FlightSuretyDapp({ network }) {
 			callback: (passenger) => {
 				console.log('PassengerWithdrawBalance', passenger)
 				displayAlert(
-					`Passenger ${
-						getPassenger(passenger.address).name
-					} successfully withdrew ${parseFloat(
+					`Passenger successfully withdrew ${parseFloat(
 						web3.utils.fromWei(passenger.amount)
-					)}`,
+					)} ETH`,
 					'Success'
 				)
 			},
@@ -520,7 +542,7 @@ export default function FlightSuretyDapp({ network }) {
 					Insurance for your flight on the blockchain!
 				</h4>
 
-				<User user={user} />
+				<User user={user} handleWithdrawAmountOwed={handleWithdrawAmountOwed} />
 				<Airlines
 					user={user}
 					airlines={airlines}
@@ -537,6 +559,7 @@ export default function FlightSuretyDapp({ network }) {
 					handleFlightStatus={handleFlightStatus}
 					displayAlert={displayAlert}
 					getAirline={getAirline}
+					flightStatus={flightStatus}
 				/>
 				<Passengers
 					user={user}
