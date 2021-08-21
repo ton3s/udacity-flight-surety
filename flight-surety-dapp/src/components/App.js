@@ -42,11 +42,18 @@ export default function FlightSuretyDapp({ network }) {
 
 	// Initialize blockchain
 	useEffect(() => {
-		loadBlockchainData(network)
+		if (window.ethereum) loadBlockchainData(network)
 	}, [network])
 
 	// Watch for web3 events
 	useEffect(() => {
+		// Check if metamask is setup
+		if (!window.ethereum) {
+			return displayAlert(
+				'Metamask not detected. Please install metamask and try again!',
+				'Error'
+			)
+		}
 		// Check if the user changes accounts
 		window.ethereum.on('accountsChanged', (accounts) => {
 			if (accounts.length) updateUser(accounts[0])
