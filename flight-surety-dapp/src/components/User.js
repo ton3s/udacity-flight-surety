@@ -34,7 +34,7 @@ export default function User({ user }) {
 							<td>{user.address}</td>
 							<td>{user.balance}</td>
 							{user.role === 'Passenger' && (
-								<td className='text-center'>0.0 ETH</td>
+								<td className='text-center'>{user.amountOwed}</td>
 							)}
 						</tr>
 					</tbody>

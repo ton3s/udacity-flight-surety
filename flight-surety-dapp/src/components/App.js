@@ -78,12 +78,15 @@ export default function FlightSuretyDapp({ network }) {
 			web3.utils.fromWei(await web3.eth.getBalance(address))
 		).toFixed(2)
 		let { name, role } = getUserDetails(address)
-		setUser({
+		const user = {
 			role,
 			name,
 			address: address,
 			balance: `${balance} ETH`,
-		})
+		}
+		if (user.role === 'Passenger')
+			user.amountOwed = await getPassengerAmountOwed(address)
+		setUser(user)
 	}
 
 	// Sets account role depending on the address selected
@@ -323,6 +326,20 @@ export default function FlightSuretyDapp({ network }) {
 		})
 	}
 
+	function getPassenger(address) {
+		return passengers.filter(
+			(passenger) => passenger.address.toLowerCase() === address.toLowerCase()
+		)[0]
+	}
+
+	async function getPassengerAmountOwed(address) {
+		const passenger = await flightSurety.methods.passengers(address).call()
+		const amountOwed = parseFloat(
+			web3.utils.fromWei(passenger.withdrawBalance)
+		).toFixed(2)
+		return `${amountOwed} ETH`
+	}
+
 	function setWeb3EventListeners(contract) {
 		// Airlines events
 		const AirlineRegistered = {
@@ -397,6 +414,17 @@ export default function FlightSuretyDapp({ network }) {
 			},
 		}
 
+		const FlightCreditInsurees = {
+			callback: (flight) => {
+				console.log('FlightCreditInsurees', flight)
+				// Update passenger insured amounts
+				displayAlert(
+					`Flight ${flight.flightNumber} successfully credited passengers`,
+					'Success'
+				)
+			},
+		}
+
 		// Passenger events
 		const PassengerPurchasedInsurance = {
 			callback: (passenger) => {
@@ -408,11 +436,24 @@ export default function FlightSuretyDapp({ network }) {
 					insuredAmount: parseFloat(
 						web3.utils.fromWei(passenger.amount)
 					).toFixed(2),
-					amountOwed: '0.0',
 				}
 				handlePassengerEdit(newPassenger)
 				displayAlert(
 					`Successfully insured passenger ${newPassenger.name} for ${newPassenger.insuredAmount} ETH`,
+					'Success'
+				)
+			},
+		}
+
+		const PassengerWithdrawBalance = {
+			callback: (passenger) => {
+				console.log('PassengerWithdrawBalance', passenger)
+				displayAlert(
+					`Passenger ${
+						getPassenger(passenger.address).name
+					} successfully withdrew ${parseFloat(
+						web3.utils.fromWei(passenger.amount)
+					)}`,
 					'Success'
 				)
 			},
@@ -425,7 +466,9 @@ export default function FlightSuretyDapp({ network }) {
 			AirlineVoted,
 			FlightRegistered,
 			FlightStatus,
+			FlightCreditInsurees,
 			PassengerPurchasedInsurance,
+			PassengerWithdrawBalance,
 		})
 	}
 

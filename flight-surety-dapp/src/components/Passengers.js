@@ -76,7 +76,6 @@ export default function Passengers({
 									<th>Departure Time</th>
 									<th>Airline</th>
 									<th className='text-center'>Insured Amount</th>
-									<th className='text-center'>Amount Owed</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -105,7 +104,6 @@ export default function Passengers({
 										<td className='text-center'>
 											{passenger.insuredAmount} ETH
 										</td>
-										<td className='text-center'>{passenger.amountOwed} ETH</td>
 									</tr>
 								))}
 							</tbody>
