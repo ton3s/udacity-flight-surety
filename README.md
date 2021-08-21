@@ -38,7 +38,7 @@ First, clone the project
 git clone git@github.com:ton3s/udacity-flight-surety.git
 ```
 
-#### Smart Contracts
+### Smart Contracts
 
 Migrate contracts to setup necessary configuration files (ABI/Settings) for the Dapp and the Oracle Server
 
@@ -55,7 +55,7 @@ BLOCKCHAIN_PRIVATE_KEY=<Private key of the metamask wallet address>
 truffle migrate --reset
 ```
 
-#### Dapp
+### Dapp
 
 ```
 cd flight-surety-dapp
@@ -63,7 +63,7 @@ npm install
 npm run dapp
 ```
 
-#### Oracle/Server
+### Oracle/Server
 
 ```
 cd flight-surety-server
