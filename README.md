@@ -2,6 +2,32 @@
 
 FlightSurety project for Udacity's Blockchain course
 
+### Libraries
+
+```
+# dotenv
+Used to load environment variables from a .env file
+
+# truffle-assertions
+Helper library to assist with checking for events
+
+# truffle-hdwallet-provider
+HD Wallet-enabled Web3 provider. Use it to sign transactions for addresses
+```
+
+### Versions
+
+```
+# Truffle version
+v5.3.12
+
+# Node version
+v12.22.1
+
+# web3 version
+v1.2.1
+```
+
 ## Setup
 
 The contracts, dapps and server are setup in seperate directories. The steps to setup each app are detailed below.
