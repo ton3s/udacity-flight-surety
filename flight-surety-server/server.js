@@ -3,14 +3,16 @@ import Config from './contracts/config.json'
 import Web3 from 'web3'
 import express from 'express'
 
-// Constrants
-const ORACLE_COUNT = 1
+// Constants
+const NUM_ORACLES = 5
 const STATUS_CODE_UNKNOWN = 0
 const STATUS_CODE_ON_TIME = 10
 const STATUS_CODE_LATE_AIRLINE = 20
 const STATUS_CODE_LATE_WEATHER = 30
 const STATUS_CODE_LATE_TECHNICAL = 40
 const STATUS_CODE_LATE_OTHER = 50
+
+let oracles = {}
 
 // Setup Web3
 let config = Config['localhost']
@@ -40,22 +42,39 @@ app.get('/api', (req, res) => {
 async function registerOracles() {
 	// Get accounts
 	const accounts = await web3.eth.personal.getAccounts()
-	console.log(accounts.length)
 	web3.eth.defaultAccount = accounts[0]
 
 	// Retrieve registration fee
 	const fee = await flightSuretyApp.methods.REGISTRATION_FEE().call()
 
+	// Check if there are enough accounts to generate the required number of oracles
+	let numOracles = NUM_ORACLES
+	if (accounts.length < NUM_ORACLES) {
+		console.log(
+			`Number of accounts (${accounts.length}) is less than the requested oracle count of ${NUM_ORACLES}.  Registering ${accounts.length} oracles`
+		)
+		numOracles = accounts.length
+	}
+
 	// Register oracles
-	await flightSuretyApp.methods.registerOracle().send({
-		from: accounts[0],
-		value: fee,
-		gas: config.gas,
-	})
-	const result = await flightSuretyApp.methods.getMyIndexes().call({
-		from: accounts[0],
-	})
-	console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`)
+	for (let i = 0; i < numOracles; i++) {
+		await flightSuretyApp.methods.registerOracle().send({
+			from: accounts[i],
+			value: fee,
+			gas: config.gas,
+		})
+
+		// Get the indexes assigned to the oracle
+		const result = await flightSuretyApp.methods.getMyIndexes().call({
+			from: accounts[i],
+		})
+
+		// Store the registered oracle details
+		oracles[accounts[i]] = result
+		console.log(
+			`Oracle Registered (${accounts[i]}): ${result[0]}, ${result[1]}, ${result[2]}`
+		)
+	}
 }
 
 function setupWeb3Listeners() {
