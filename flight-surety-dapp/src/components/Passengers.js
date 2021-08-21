@@ -4,6 +4,9 @@ import { Container, Card, CardBody, CardTitle, Button, Table } from 'reactstrap'
 // Components
 import PurchaseInsurance from './PurchaseInsurance'
 
+// Libraries
+import moment from 'moment'
+
 const styles = {
 	card_title: {
 		fontSize: '24px',
@@ -61,8 +64,8 @@ export default function Passengers({
 								<tr className='text-left'>
 									<th className='text-center'>#</th>
 									<th>Name</th>
-									<th>Flight Number</th>
-									<th>Flight Time</th>
+									<th>Flight</th>
+									<th>Departure Time</th>
 									<th>Airline</th>
 									<th className='text-center'>Insured Amount</th>
 								</tr>
@@ -73,11 +76,17 @@ export default function Passengers({
 										<td className='text-center'>{index + 1}</td>
 										<td>{passenger.name}</td>
 										<td>{getFlight(passenger.flightKey).flightNumber}</td>
-										<td>{getFlight(passenger.flightKey).flightTime}</td>
+										<td>
+											{moment(
+												parseInt(getFlight(passenger.flightKey).flightTime)
+											).format('dddd, MMMM Do YYYY, h:mm:ss a')}
+										</td>
 										<td>
 											{getAirline(getFlight(passenger.flightKey).airline).name}
 										</td>
-										<td className='text-center'>{passenger.insuredAmount}</td>
+										<td className='text-center'>
+											{passenger.insuredAmount} ETH
+										</td>
 									</tr>
 								))}
 							</tbody>
