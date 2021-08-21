@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import express from 'express'
 
 // Constrants
-const ORACLE_COUNT = 20
+const ORACLE_COUNT = 1
 const STATUS_CODE_UNKNOWN = 0
 const STATUS_CODE_ON_TIME = 10
 const STATUS_CODE_LATE_AIRLINE = 20
@@ -38,8 +38,23 @@ app.get('/api', (req, res) => {
 })
 
 async function registerOracles() {
-	const accounts = web3.eth.personal.getAccounts()
+	// Get accounts
+	const accounts = await web3.eth.personal.getAccounts()
 	web3.eth.defaultAccount = accounts[0]
+
+	// Retrieve registration fee
+	const fee = await flightSuretyApp.methods.REGISTRATION_FEE().call()
+
+	// Register oracles
+	await flightSuretyApp.methods.registerOracle().send({
+		from: accounts[0],
+		value: fee,
+		gas: config.gas,
+	})
+	const result = await flightSuretyApp.methods.getMyIndexes().call({
+		from: accounts[0],
+	})
+	console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`)
 }
 
 function setupWeb3Listeners() {

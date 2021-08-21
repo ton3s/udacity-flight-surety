@@ -43,6 +43,7 @@ module.exports = {
 			host: 'localhost',
 			port: 7545,
 			network_id: '5777', // Match any network id
+			gas: 4000000,
 		},
 		rinkeby: {
 			provider: function () {

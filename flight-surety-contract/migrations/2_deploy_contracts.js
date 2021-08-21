@@ -15,6 +15,7 @@ module.exports = function (deployer) {
 				localhost: {
 					url: 'http://localhost:7545',
 					appAddress: FlightSuretyApp.address,
+					gas: deployer.networks[deployer.network].gas,
 				},
 				firstAirline,
 			}
