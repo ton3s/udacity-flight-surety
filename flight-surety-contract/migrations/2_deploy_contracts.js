@@ -19,7 +19,9 @@ module.exports = function (deployer) {
 				firstAirline,
 			}
 
-			// Helper function to setup config file and ABI to be available for Dapp to consume
+			// Helper function to setup config file and ABI to be available
+
+			// Dapp
 			fs.writeFileSync(
 				__dirname + '/../../flight-surety-dapp/src/contracts/config.json',
 				JSON.stringify(config, null, '\t'),
@@ -29,6 +31,17 @@ module.exports = function (deployer) {
 				__dirname + '/../build/contracts/FlightSuretyApp.json',
 				__dirname +
 					'/../../flight-surety-dapp/src/contracts/FlightSuretyApp.json'
+			)
+
+			// Server / Oracle
+			fs.writeFileSync(
+				__dirname + '/../../flight-surety-server/contracts/config.json',
+				JSON.stringify(config, null, '\t'),
+				'utf-8'
+			)
+			fs.copyFileSync(
+				__dirname + '/../build/contracts/FlightSuretyApp.json',
+				__dirname + '/../../flight-surety-server/contracts/FlightSuretyApp.json'
 			)
 		})
 }

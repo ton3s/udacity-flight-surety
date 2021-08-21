@@ -19,10 +19,18 @@ npm install
 truffle migrate --reset
 ```
 
-Runs the app in the development mode.
+Runs the dapp in the development mode.
 
 ```
 cd flight-surety-dapp
 npm install
-npm start
+npm run dapp
+```
+
+Runs the Oracle/Server in the development mode.
+
+```
+cd flight-surety-server
+npm install
+npm run
 ```
