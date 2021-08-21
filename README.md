@@ -28,6 +28,11 @@ v12.22.1
 v1.2.1
 ```
 
+## Prerequisites
+
+- Ganache is setup with at least 20 accounts in order to setup 20 oracles
+- Import the Mneumonic seed from Ganache into Metamask so you can run the Dapp locally
+
 ## Setup
 
 The contracts, dapps and server are setup in seperate directories. The steps to setup each app are detailed below.
@@ -50,6 +55,8 @@ npm install
 # Configure a .env file with the following:
 INFURA_ID=<Infura-Id>
 BLOCKCHAIN_PRIVATE_KEY=<Private key of the metamask wallet address>
+FIRST_AIRLINE_NAME='Udacity Airlines'
+FIRST_AIRLINE_PUBLIC_KEY=<Public key of the metamask wallet address>
 
 # Compile and build the smart contracts
 truffle migrate --reset

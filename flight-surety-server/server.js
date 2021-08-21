@@ -40,6 +40,7 @@ app.get('/api', (req, res) => {
 async function registerOracles() {
 	// Get accounts
 	const accounts = await web3.eth.personal.getAccounts()
+	console.log(accounts.length)
 	web3.eth.defaultAccount = accounts[0]
 
 	// Retrieve registration fee

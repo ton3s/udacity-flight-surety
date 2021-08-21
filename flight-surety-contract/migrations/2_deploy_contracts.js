@@ -1,9 +1,10 @@
 const FlightSuretyApp = artifacts.require('FlightSuretyApp')
 const fs = require('fs')
+require('dotenv').config()
 
 const firstAirline = {
-	name: 'Udacity Airlines',
-	address: '0xD9F476a47ABf1bE4Db978C79586169F3263Df636',
+	name: process.env.FIRST_AIRLINE_NAME,
+	address: process.env.FIRST_AIRLINE_PUBLIC_KEY,
 	status: 'Registered',
 }
 

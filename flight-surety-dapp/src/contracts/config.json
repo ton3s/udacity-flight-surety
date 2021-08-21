@@ -1,12 +1,12 @@
 {
 	"localhost": {
 		"url": "http://localhost:7545",
-		"appAddress": "0xD127bE0046c07883c0222cc0fa07E6434E51DcCF",
-		"gas": 4000000
+		"appAddress": "0xc25B1E37Dfa180CbF1dCCc0a9DF267727180766E",
+		"gas": 6721975
 	},
 	"firstAirline": {
 		"name": "Udacity Airlines",
-		"address": "0xD9F476a47ABf1bE4Db978C79586169F3263Df636",
+		"address": "0x6497Df3D1F359347f1ed7d0A48bADb64323A25AE",
 		"status": "Registered"
 	}
 }

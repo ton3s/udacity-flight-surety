@@ -43,7 +43,7 @@ module.exports = {
 			host: 'localhost',
 			port: 7545,
 			network_id: '5777', // Match any network id
-			gas: 4000000,
+			gas: 6721975,
 		},
 		rinkeby: {
 			provider: function () {
@@ -53,7 +53,7 @@ module.exports = {
 				)
 			},
 			network_id: 4,
-			gas: 4000000,
+			gas: 6721975,
 			confirmations: 1,
 			skipDryRun: true,
 		},
