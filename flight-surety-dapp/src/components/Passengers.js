@@ -1,5 +1,13 @@
 import React from 'react'
-import { Container, Card, CardBody, CardTitle, Button, Table } from 'reactstrap'
+import {
+	Container,
+	Card,
+	CardBody,
+	CardTitle,
+	Button,
+	Table,
+	UncontrolledTooltip,
+} from 'reactstrap'
 
 // Components
 import PurchaseInsurance from './PurchaseInsurance'
@@ -63,7 +71,7 @@ export default function Passengers({
 							<thead>
 								<tr className='text-left'>
 									<th className='text-center'>#</th>
-									<th>Name</th>
+									<th className='text-center'>Name</th>
 									<th>Flight</th>
 									<th>Departure Time</th>
 									<th>Airline</th>
@@ -75,7 +83,16 @@ export default function Passengers({
 								{passengers.map((passenger, index) => (
 									<tr key={index} className='text-left'>
 										<td className='text-center'>{index + 1}</td>
-										<td>{passenger.name}</td>
+										<td className='text-center' id={'name' + index}>
+											{passenger.name}
+											<UncontrolledTooltip
+												placement='top'
+												target={'name' + index}
+												delay={0}>
+												{passenger.address}
+											</UncontrolledTooltip>
+										</td>
+
 										<td>{getFlight(passenger.flightKey).flightNumber}</td>
 										<td>
 											{moment(

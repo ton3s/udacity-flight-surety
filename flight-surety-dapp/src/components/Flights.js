@@ -17,6 +17,12 @@ const styles = {
 	},
 }
 
+const flightStatus = {
+	0: 'Unknown',
+	10: 'On Time',
+	20: 'Late',
+}
+
 export default function Flights({
 	user,
 	airlines,
@@ -86,7 +92,7 @@ export default function Flights({
 												'dddd, MMMM Do YYYY, h:mm:ss a'
 											)}
 										</td>
-										<td>{flight.status}</td>
+										<td>{flightStatus[flight.status]}</td>
 										<td className='td-actions text-right'>
 											<Button
 												style={styles.button_action}

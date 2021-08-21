@@ -374,7 +374,7 @@ export default function FlightSuretyDapp({ network }) {
 				console.log('FlightRegistered', flight)
 				handleFlightEdit({
 					...flight,
-					status: 'Unknown',
+					status: 0,
 				})
 				displayAlert(
 					`Successfully registered flight ${flight.flightNumber}`,
@@ -386,6 +386,10 @@ export default function FlightSuretyDapp({ network }) {
 		const FlightStatus = {
 			callback: (flight) => {
 				console.log('FlightStatus', flight)
+				handleFlightEdit({
+					...flight,
+					status: flight.statusCode,
+				})
 				displayAlert(
 					`Successfully registered flight ${flight.flightNumber}`,
 					'Success'
@@ -404,11 +408,11 @@ export default function FlightSuretyDapp({ network }) {
 					insuredAmount: parseFloat(
 						web3.utils.fromWei(passenger.amount)
 					).toFixed(2),
-					amountOwed: 0,
+					amountOwed: '0.0',
 				}
 				handlePassengerEdit(newPassenger)
 				displayAlert(
-					`Successfully insured passenger ${newPassenger.name}`,
+					`Successfully insured passenger ${newPassenger.name} for ${newPassenger.insuredAmount} ETH`,
 					'Success'
 				)
 			},
