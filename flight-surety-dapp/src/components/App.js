@@ -249,6 +249,21 @@ export default function FlightSuretyDapp({ network }) {
 
 	function handleFlightStatus(flight) {
 		// Check the flight status by calling the smart contract which then queries the oracle
+		flightSurety.methods
+			.processFlightStatus(
+				flight.airline,
+				flight.flightNumber,
+				flight.flightTime,
+				10
+			)
+			.send({ from: user.address })
+			.catch((err) => {
+				console.log(err.message)
+				displayAlert(
+					'An error occurred while trying to retrieve the status of a flight. Please check the console for more details.',
+					'Error'
+				)
+			})
 	}
 
 	function handleFlightEdit(flight) {
@@ -361,7 +376,16 @@ export default function FlightSuretyDapp({ network }) {
 					...flight,
 					status: 'Unknown',
 				})
-				console.log(flight)
+				displayAlert(
+					`Successfully registered flight ${flight.flightNumber}`,
+					'Success'
+				)
+			},
+		}
+
+		const FlightStatus = {
+			callback: (flight) => {
+				console.log('FlightStatus', flight)
 				displayAlert(
 					`Successfully registered flight ${flight.flightNumber}`,
 					'Success'
@@ -380,6 +404,7 @@ export default function FlightSuretyDapp({ network }) {
 					insuredAmount: parseFloat(
 						web3.utils.fromWei(passenger.amount)
 					).toFixed(2),
+					amountOwed: 0,
 				}
 				handlePassengerEdit(newPassenger)
 				displayAlert(
@@ -395,6 +420,7 @@ export default function FlightSuretyDapp({ network }) {
 			AirlineFunded,
 			AirlineVoted,
 			FlightRegistered,
+			FlightStatus,
 			PassengerPurchasedInsurance,
 		})
 	}

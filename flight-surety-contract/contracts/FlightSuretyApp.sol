@@ -280,6 +280,20 @@ contract FlightSuretyApp {
         emit FlightStatus(flightNumber, flightTime, airline, statusCode, flightKey);
     }
     
+    // Generate a request for oracles to fetch flight information
+    function fetchFlightStatus(address airline, string calldata flight, uint256 timestamp) external {
+        uint8 index = getRandomIndex(msg.sender);
+
+        // Generate a unique key for storing the request
+        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
+        oracleResponses[key] = ResponseInfo({
+                                                requester: msg.sender,
+                                                isOpen: true
+                                            });
+
+        emit OracleRequest(index, airline, flight, timestamp);
+    } 
+
     // *********************
     // Passengers functions
     // *********************
@@ -367,7 +381,7 @@ contract FlightSuretyApp {
         emit PassengerWithdrawBalance(msg.sender, amountOwed);
     }
 
-    // region ORACLE MANAGEMENT
+// region ORACLE MANAGEMENT
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;    
 
