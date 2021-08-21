@@ -61,11 +61,10 @@ export default function Passengers({
 								<tr className='text-left'>
 									<th className='text-center'>#</th>
 									<th>Name</th>
-									<th>Passenger Address</th>
 									<th>Flight Number</th>
 									<th>Flight Time</th>
 									<th>Airline</th>
-									<th>Insured Amount</th>
+									<th className='text-center'>Insured Amount</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -73,13 +72,12 @@ export default function Passengers({
 									<tr key={index} className='text-left'>
 										<td className='text-center'>{index + 1}</td>
 										<td>{passenger.name}</td>
-										<td>{passenger.address}</td>
 										<td>{getFlight(passenger.flightKey).flightNumber}</td>
 										<td>{getFlight(passenger.flightKey).flightTime}</td>
 										<td>
 											{getAirline(getFlight(passenger.flightKey).airline).name}
 										</td>
-										<td>{passenger.insuredAmount}</td>
+										<td className='text-center'>{passenger.insuredAmount}</td>
 									</tr>
 								))}
 							</tbody>

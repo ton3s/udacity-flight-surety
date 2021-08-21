@@ -55,7 +55,7 @@ export default function FlightSuretyDapp({ network }) {
 		web3.eth.getAccounts().then((accounts) => {
 			if (accounts.length) updateUser(accounts[0])
 		})
-	}, [airlines])
+	}, [airlines, passengers])
 
 	React.useEffect(() => {
 		return function cleanup() {
@@ -98,7 +98,7 @@ export default function FlightSuretyDapp({ network }) {
 		}
 
 		let _passengers = passengers.filter(
-			(passengers) => passengers.address.toLowerCase() === address.toLowerCase()
+			(passenger) => passenger.address.toLowerCase() === address.toLowerCase()
 		)
 		if (_passengers.length > 0) {
 			_user = {
