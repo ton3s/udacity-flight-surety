@@ -61,6 +61,9 @@ truffle migrate --reset
 cd flight-surety-dapp
 npm install
 npm run dapp
+
+# Web browser should open at the following address:
+http://localhost:8000/
 ```
 
 ### Oracle/Server
@@ -68,5 +71,5 @@ npm run dapp
 ```
 cd flight-surety-server
 npm install
-npm run
+npm run server
 ```

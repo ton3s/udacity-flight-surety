@@ -27,8 +27,8 @@
 		"web3": "^1.4.0"
 	},
 	"scripts": {
-		"dapp": "react-scripts start",
-		"start": "react-scripts start",
+		"dapp": "PORT=8000 react-scripts start",
+		"start": "PORT=8000 react-scripts start",
 		"build": "react-scripts build && gulp licenses",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
