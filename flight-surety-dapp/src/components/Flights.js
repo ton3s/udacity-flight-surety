@@ -89,7 +89,7 @@ export default function Flights({
 										</td>
 										<td>{flightStatus[flight.status]}</td>
 										<td className='td-actions text-right'>
-											{flight.status !== 20 && (
+											{flight.status !== '20' && (
 												<Button
 													style={styles.button_action}
 													color='primary'
@@ -98,13 +98,11 @@ export default function Flights({
 													Get Status
 												</Button>
 											)}
-											{flight.status === 20 && (
+											{flight.status === '20' && (
 												<Button
 													style={styles.button_action}
-													color='danger'
-													type='button'
-													outline
-													disabled>
+													color='success'
+													type='button'>
 													Paid
 												</Button>
 											)}
