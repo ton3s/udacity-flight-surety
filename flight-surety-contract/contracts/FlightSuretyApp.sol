@@ -4,6 +4,8 @@ pragma solidity >=0.4.22 <0.9.0;
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 interface IFlightSurety {
+
+    // Airlines
     function isOperational() external view returns(bool);
     function isAirlineExists(address airline) external view returns (bool);
     function isAirlineQueued(address airline) external view returns (bool);
@@ -17,36 +19,31 @@ interface IFlightSurety {
     function voteAirline(address airline, address votingAirline) external;
     function getAirlineVotes(address airline) external view returns (address[] memory);
     function fundAirline(address airline) external payable;
+
+    // Flights
+    function isFlightRegistered(address airline, string calldata flightNumber, uint256 flightTime) external view returns (bool);
+    function isFlightPaid(address airline, string calldata flightNumber, uint256 flightTime) external view returns (bool);
+    function registerFlight(address airline, string calldata flightNumber, uint256 flightTime, uint8 statusCode) external returns (bytes32 flightKey);
+    function setFlightStatus(address airline, string calldata flightNumber, uint256 flightTime, uint8 statusCode) external returns (bytes32 flightKey);
+    function getFlightStatus(address airline, string calldata flightNumber, uint256 flightTime) external view returns (uint8);
+
+    // Passengers
+    function isPassengerExists(address passenger) external view returns (bool);
+    function getPassengerWithdrawBalance(address passenger) external view returns (uint);
+    function getPassengerName(address passenger) external view returns (string memory);
+    function buyInsurance(address passenger, string calldata name, address airline, string calldata flightNumber, uint256 flightTime, uint amount) external returns (bytes32 flightKey);
+    function creditInsurees(address airline, string calldata flightNumber, uint256 flightTime) external returns (bytes32 flightKey);
+    function withdrawFunds(address payable passenger) external;
 }
 
 contract FlightSuretyApp {
     using SafeMath for uint256;
     
-    struct Flight {
-        string flightNumber;
-        uint256 flightTime;        
-        address airline;
-        uint8 statusCode;
-        bool isPaid;
-        bool exists;
-        address[] insuredPassengers;
-    }
-    
-    struct Passenger {
-        string name;
-        uint withdrawBalance;
-        bool exists;
-        mapping(bytes32 => uint) insuredFlights;
-    }
-    
     // Number of airlines that can registered immediately before
     // a consensus vote is required
-    uint private constant AIRLINES_REGISTRATION_LIMIT = 3;  
+    uint private constant AIRLINES_REGISTRATION_LIMIT = 4;  
     uint private constant FUNDING_REQUIRED = 10 ether;
     uint private constant MAX_INSURANCE_PRICE = 1 ether;
-    
-    mapping(bytes32 => Flight) public flights;
-    mapping(address => Passenger) public passengers;
     
     IFlightSurety flightSurety;
     address private contractOwner; 
@@ -121,15 +118,13 @@ contract FlightSuretyApp {
     }
     
     modifier isFlightRegistered(address airline, string memory flightNumber, uint256 flightTime) {
-        bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
-        require(flights[flightKey].exists == true, "Flight is not registered");
+        require(flightSurety.isFlightRegistered(airline, flightNumber, flightTime), "Flight is not registered");
         _;
     }
     
     // Check if flight has been paid
     modifier isFlightPaid(address airline, string memory flightNumber, uint256 flightTime) {
-        bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
-        require(flights[flightKey].isPaid == false, "Insured passengers on this late flight have been paid");
+        require(flightSurety.isFlightPaid(airline, flightNumber, flightTime) == false, "Insured passengers on this late flight have been paid");
         _;
     }
     
@@ -155,13 +150,13 @@ contract FlightSuretyApp {
     
     // Check if passenger exits
     modifier isPassenger(address passenger) {
-        require(passengers[passenger].exists == true, "Passenger does not exists");
+        require(flightSurety.isPassengerExists(passenger), "Passenger does not exists");
         _;
     }
     
     // Check if passenger is eligible to withdraw
     modifier canPassengerWithdrawBalance(address passenger) {
-        require(passengers[passenger].withdrawBalance > 0, "Passenger does not have balance eligible for withdrawal");
+        require(flightSurety.getPassengerWithdrawBalance(passenger) > 0, "Passenger does not have balance eligible for withdrawal");
         _;
     }
     
@@ -225,18 +220,7 @@ contract FlightSuretyApp {
         requireIsOperational
         isAirlineFunded(msg.sender) external {
         
-        // Generate a unique key for storing the flight details
-        bytes32 flightKey = keccak256(abi.encodePacked(msg.sender, flightNumber, flightTime));
-        
-        // Register the flight
-        Flight storage flight = flights[flightKey];
-        flight.flightNumber = flightNumber;
-        flight.flightTime = flightTime;
-        flight.airline = msg.sender;
-        flight.statusCode = STATUS_CODE_UNKNOWN;
-        flight.exists = true;
-        flight.isPaid = false;
-        
+        bytes32 flightKey = flightSurety.registerFlight(msg.sender, flightNumber, flightTime, STATUS_CODE_UNKNOWN); 
         emit FlightRegistered(flightNumber, flightTime, msg.sender, flightKey);
     }
     
@@ -244,19 +228,15 @@ contract FlightSuretyApp {
         requireIsOperational
         isAirlineFunded(airline)
         isFlightRegistered(airline, flightNumber, flightTime) public {
-            
-        // Generate the flightKey to retrieve the flight details
-        bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
-        
+                    
         // Set the status for the flight
-        flights[flightKey].statusCode = statusCode;
+        bytes32 flightKey = flightSurety.setFlightStatus(airline, flightNumber, flightTime, statusCode);
         
         // If flight status is STATUS_CODE_LATE_AIRLINE then refund all users that
         // have insurance for this flight 1.5x
-        if (flights[flightKey].statusCode == STATUS_CODE_LATE_AIRLINE) {
+        if (flightSurety.getFlightStatus(airline, flightNumber, flightTime) == STATUS_CODE_LATE_AIRLINE) {
             creditInsurees(airline, flightNumber, flightTime);
         }
-        
         emit FlightStatus(flightNumber, flightTime, airline, statusCode, flightKey);
     }
     
@@ -285,35 +265,11 @@ contract FlightSuretyApp {
         isAirlineFunded(airline)
         isFlightRegistered(airline, flightNumber, flightTime)
         paidEnoughForInsurance external payable {
-        
-        // Generate the flightKey to retrieve the flight details
-        bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
-        
+                
         // Check if flight is not late and eligible for passengers to purchase insurance
-        require(flights[flightKey].statusCode != STATUS_CODE_LATE_AIRLINE, "Cannot purchase insurance for a flight that is already late");
+        require(flightSurety.getFlightStatus(airline, flightNumber, flightTime) != STATUS_CODE_LATE_AIRLINE, "Cannot purchase insurance for a flight that is already late");
         
-        // Check if passenger has previously bought insurance for this flight
-        address[] storage insuredPassengers = flights[flightKey].insuredPassengers;
-        for (uint i=0; i < insuredPassengers.length; i++) {
-            if (insuredPassengers[i] == msg.sender) {
-                revert("Passenger has already purchased insurance for this flight");   
-            }
-        }
-        
-        // Add passenger to insured passengers list for the flight
-        insuredPassengers.push(msg.sender);
-        
-        // Register passenger if they have not been created previously
-        if (passengers[msg.sender].exists == false) {
-            Passenger storage passenger = passengers[msg.sender];
-            passenger.name = name;
-            passenger.withdrawBalance = 0;
-            passenger.exists = true;
-        }
-        
-        // Add balance paid for the insured flight
-        passengers[msg.sender].insuredFlights[flightKey] = msg.value;
-        
+        bytes32 flightKey = flightSurety.buyInsurance(msg.sender, name, airline, flightNumber, flightTime, msg.value);
         emit PassengerPurchasedInsurance(name, flightKey, msg.sender, msg.value);
     }
     
@@ -322,29 +278,12 @@ contract FlightSuretyApp {
         requireIsOperational
         isFlightRegistered(airline, flightNumber, flightTime)
         isFlightPaid(airline, flightNumber, flightTime) internal {
-        
-        // Generate the flightKey to retrieve the flight details
-        bytes32 flightKey = keccak256(abi.encodePacked(airline, flightNumber, flightTime));
-        
+                
         // Check if flight is late
-        require(flights[flightKey].statusCode == STATUS_CODE_LATE_AIRLINE, "Flight is not late");
+        require(flightSurety.getFlightStatus(airline, flightNumber, flightTime) == STATUS_CODE_LATE_AIRLINE, "Flight is not late");
         
         // Credit passengers
-        address[] storage insuredPassengers = flights[flightKey].insuredPassengers;
-        for (uint i=0; i < insuredPassengers.length; i++) {
-            address passengerAddress = insuredPassengers[i];
-            uint credit = SafeMath.div(SafeMath.mul(passengers[passengerAddress].insuredFlights[flightKey], 150), 100);
-            
-            // Set balance to 0 for insured passenger
-            passengers[passengerAddress].insuredFlights[flightKey] = 0;
-            
-            // Add credit to current withdraw balance
-            passengers[passengerAddress].withdrawBalance = SafeMath.add(passengers[passengerAddress].withdrawBalance, credit);
-        }
-        
-        // Set flight paid status
-        flights[flightKey].isPaid = true;
-        
+        bytes32 flightKey = flightSurety.creditInsurees(airline, flightNumber, flightTime); 
         emit FlightCreditInsurees(flightNumber, flightTime, airline, flightKey);
     }
     
@@ -354,16 +293,12 @@ contract FlightSuretyApp {
         isPassenger(msg.sender) 
         canPassengerWithdrawBalance(msg.sender) external {
         
-        // Store the amount to be sent to the passenger
-        uint amountOwed = passengers[msg.sender].withdrawBalance;
+        flightSurety.withdrawFunds(msg.sender);
+        emit PassengerWithdrawBalance(flightSurety.getPassengerName(msg.sender), msg.sender, flightSurety.getPassengerWithdrawBalance(msg.sender));
+    }
 
-        // Reset passengers withdrawal balance to 0 
-        passengers[msg.sender].withdrawBalance = 0;
-
-        // Send funds to passenger
-        msg.sender.transfer(amountOwed);
-        
-        emit PassengerWithdrawBalance(passengers[msg.sender].name, msg.sender, amountOwed);
+    function getPassengerWithdrawBalance(address passenger) external view returns (uint) {
+        return flightSurety.getPassengerWithdrawBalance(passenger);
     }
 
 // region ORACLE MANAGEMENT

@@ -335,9 +335,11 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	async function getPassengerAmountOwed(address) {
-		const passenger = await flightSurety.methods.passengers(address).call()
+		const passengerWithdrawBalance = await flightSurety.methods
+			.getPassengerWithdrawBalance(address)
+			.call()
 		const amountOwed = parseFloat(
-			web3.utils.fromWei(passenger.withdrawBalance)
+			web3.utils.fromWei(passengerWithdrawBalance)
 		).toFixed(2)
 		return amountOwed
 	}
