@@ -341,7 +341,7 @@ export default function FlightSuretyDapp({ network }) {
 	function handleWithdrawAmountOwed(address) {
 		if (!(user.amountOwed > 0)) {
 			return displayAlert(
-				'In order to withdraw, you need a balance of amount owed greater than 0',
+				'In order to withdraw, you need a balance owed greater than 0',
 				'Error'
 			)
 		}
