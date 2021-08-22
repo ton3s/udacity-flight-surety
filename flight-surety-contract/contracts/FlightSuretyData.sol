@@ -53,6 +53,11 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requireAirlineExists(address airline) {
+        require(airlines[airline].exists, "Airline does not exist");
+        _;
+    }
+
     constructor(string memory name, address airline) public {
         contractOwner = msg.sender;
 

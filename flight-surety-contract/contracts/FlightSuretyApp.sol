@@ -79,28 +79,24 @@ contract FlightSuretyApp {
     
     // Check if the airline is registered
     modifier isAirlineRegistered(address airline) {
-        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
         require(flightSurety.isAirlineRegistered(airline), "Airline is not registered");
         _;
     }
     
     // Check if airline has been queued
     modifier isAirlineQueued(address airline) {
-        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
         require(flightSurety.isAirlineQueued(airline), "Airline is not queued");
         _;
     }
     
     // Check if an airline is funded
     modifier isAirlineFunded(address airline) {
-        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
         require(flightSurety.isAirlineFunded(airline), "Airline is not funded");
         _;
     }
 
     // Check if airline is registered / funded
     modifier isAirlineRegisteredFunded(address airline) {
-        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
         require(flightSurety.isAirlineRegistered(airline) || flightSurety.isAirlineFunded(airline), "Airline is not registered or funded");
         _;
     }
