@@ -89,16 +89,16 @@ export default function Flights({
 										</td>
 										<td>{flightStatus[flight.status]}</td>
 										<td className='td-actions text-right'>
-											{flight.status != 20 && (
+											{flight.status !== 20 && (
 												<Button
 													style={styles.button_action}
 													color='primary'
 													type='button'
 													onClick={() => handleFlightStatus(flight)}>
-													Status
+													Get Status
 												</Button>
 											)}
-											{flight.status == 20 && (
+											{flight.status === 20 && (
 												<Button
 													style={styles.button_action}
 													color='danger'

@@ -129,7 +129,7 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	async function loadBlockchainData(network) {
-		await window.ethereum.send('eth_requestAccounts')
+		await window.ethereum.request({ method: 'eth_requestAccounts' })
 		window.ethereum.autoRefreshOnNetworkChange = false
 
 		// Set contract
@@ -144,13 +144,17 @@ export default function FlightSuretyDapp({ network }) {
 	}
 
 	function displayAlert(message, type) {
+		const successTitles = ['Nice!', 'Awesome!', 'Good Job!']
+		let randomSuccessTitle =
+			successTitles[Math.floor(Math.random() * successTitles.length)]
+
 		switch (type) {
 			case 'Success': {
 				setAlert(
 					<ReactBSAlert
 						success
 						style={{ display: 'block', marginTop: '-100px' }}
-						title='Good job!'
+						title={randomSuccessTitle}
 						onConfirm={() => hideAlert()}
 						onCancel={() => hideAlert()}
 						confirmBtnBsStyle='info'

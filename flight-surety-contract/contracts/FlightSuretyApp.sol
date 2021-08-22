@@ -169,11 +169,20 @@ contract FlightSuretyApp {
         });
         registeredAirlinesCount = SafeMath.add(registeredAirlinesCount, 1);
     }
+
+    function isOperational() public view returns(bool) {
+        return operational;  
+    }
+
+    function setOperatingStatus(bool mode) external requireContractOwner {
+        operational = mode;
+    }
     
     // *******************
     // Airline functions
     // *******************
     function registerAirline(string memory name, address airline) 
+        requireIsOperational
         isNewAirline(airline)
         isAirlineRegisteredFunded(msg.sender) public {
         
@@ -206,6 +215,7 @@ contract FlightSuretyApp {
     }
     
     function voteAirline(address airline) 
+        requireIsOperational
         isAirlineQueued(airline) 
         isAirlineRegisteredFunded(msg.sender) public {
         
@@ -232,6 +242,7 @@ contract FlightSuretyApp {
     }
     
     function fundAirline() isAirlineRegistered(msg.sender) 
+        requireIsOperational
         paidEnough(FUNDING_REQUIRED) 
         checkValue(FUNDING_REQUIRED) public payable {
         airlines[msg.sender].status = AirlineState.FUNDED;
@@ -244,7 +255,9 @@ contract FlightSuretyApp {
     // *******************
     
     // Only funded airlines can register flights that passengers can insure against
-    function registerFlight(string calldata flightNumber, uint256 flightTime) isAirlineFunded(msg.sender) external {
+    function registerFlight(string calldata flightNumber, uint256 flightTime) 
+        requireIsOperational
+        isAirlineFunded(msg.sender) external {
         
         // Generate a unique key for storing the flight details
         bytes32 flightKey = keccak256(abi.encodePacked(msg.sender, flightNumber, flightTime));
@@ -262,6 +275,7 @@ contract FlightSuretyApp {
     }
     
     function processFlightStatus(address airline, string memory flightNumber, uint256 flightTime, uint8 statusCode) 
+        requireIsOperational
         isAirlineFunded(airline)
         isFlightRegistered(airline, flightNumber, flightTime) public {
             
@@ -281,7 +295,9 @@ contract FlightSuretyApp {
     }
     
     // Generate a request for oracles to fetch flight information
-    function fetchFlightStatus(address airline, string calldata flight, uint256 timestamp) external {
+    function fetchFlightStatus(address airline, string calldata flight, uint256 timestamp) 
+        requireIsOperational external {
+
         uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
@@ -299,6 +315,7 @@ contract FlightSuretyApp {
     // *********************
     
     function buyInsurance(string calldata name, address airline, string calldata flightNumber, uint256 flightTime) 
+        requireIsOperational
         isAirlineFunded(airline)
         isFlightRegistered(airline, flightNumber, flightTime)
         paidEnoughForInsurance external payable {
@@ -336,6 +353,7 @@ contract FlightSuretyApp {
     
     // Credit funds to passengers that have bought insurance and airline is late
     function creditInsurees(address airline, string memory flightNumber, uint256 flightTime) 
+        requireIsOperational
         isFlightRegistered(airline, flightNumber, flightTime)
         isFlightPaid(airline, flightNumber, flightTime) internal {
         
@@ -366,6 +384,7 @@ contract FlightSuretyApp {
     
     // Insuree withdraws the balance owed
     function withdrawFunds() 
+        requireIsOperational
         isPassenger(msg.sender) 
         canPassengerWithdrawBalance(msg.sender) external {
         
@@ -424,7 +443,10 @@ contract FlightSuretyApp {
 
 
     // Register an oracle with the contract
-    function registerOracle() external payable {
+    function registerOracle() 
+        requireIsOperational
+        external payable {
+            
         // Require registration fee
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
         uint8[3] memory indexes = generateIndexes(msg.sender);
@@ -440,7 +462,9 @@ contract FlightSuretyApp {
     // For the response to be accepted, there must be a pending request that is open
     // and matches one of the three Indexes randomly assigned to the oracle at the
     // time of registration (i.e. uninvited oracles are not welcome)
-    function submitOracleResponse(uint8 index, address airline, string calldata flight, uint256 timestamp, uint8 statusCode) external {
+    function submitOracleResponse(uint8 index, address airline, string calldata flight, uint256 timestamp, uint8 statusCode) 
+        requireIsOperational external {
+        
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
 
         bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp)); 
