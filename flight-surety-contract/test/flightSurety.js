@@ -61,6 +61,21 @@ contract('FlightSuretyApp', function (accounts) {
 		})
 	})
 
+	it('A registered airline cannot register a new airline', async () => {
+		// Attempt to register airline 3 from registered airline 2
+		try {
+			await flightSuretyApp.registerAirline(airline3.name, airline3.address, {
+				from: airline2.address,
+			})
+		} catch (err) {
+			assert.equal(
+				err.reason,
+				'Airline is not funded',
+				'Error: Airline can only be registered by a funded airline'
+			)
+		}
+	})
+
 	it('The fifth airline is queued', async () => {
 		// Register the airline 3
 		const txReceipt1 = await flightSuretyApp.registerAirline(
@@ -98,6 +113,81 @@ contract('FlightSuretyApp', function (accounts) {
 		)
 		// Check that airline 5 was queued
 		truffleAssert.eventEmitted(txReceipt3, 'AirlineQueued', {
+			name: airline5.name,
+		})
+	})
+
+	it('Attempting to fund an airline with less than 10 Ether should fail', async () => {
+		// Attempt to fund airline 2 with less than 10 ether
+		try {
+			await flightSuretyApp.fundAirline({
+				from: airline2.address,
+				to: flightSuretyApp.address,
+				value: web3.utils.toWei('9', 'ether'),
+			})
+		} catch (err) {
+			assert.equal(
+				err.reason,
+				'Ether sent is less than the required amount',
+				'Error: Airline is funded with less than 10 Ether'
+			)
+		}
+	})
+
+	it('Successfully fund airline 2 with 10 ether', async () => {
+		// Fund airline 2 with 10 ether
+		const txReceipt1 = await flightSuretyApp.fundAirline({
+			from: airline2.address,
+			to: flightSuretyApp.address,
+			value: web3.utils.toWei('10', 'ether'),
+		})
+		truffleAssert.eventEmitted(txReceipt1, 'AirlineFunded', {
+			name: airline2.name,
+		})
+
+		// Fund airline 3 with 10 ether
+		const txReceipt2 = await flightSuretyApp.fundAirline({
+			from: airline3.address,
+			to: flightSuretyApp.address,
+			value: web3.utils.toWei('10', 'ether'),
+		})
+		truffleAssert.eventEmitted(txReceipt2, 'AirlineFunded', {
+			name: airline3.name,
+		})
+	})
+
+	it('Queued airline needs at least 50 percent in order to be registered', async () => {
+		// Vote for airline 5 with funded airline 1
+		const txReceipt1 = await flightSuretyApp.voteAirline(airline5.address, {
+			from: airline1.address,
+		})
+		// Check airline 5 received a vote
+		truffleAssert.eventEmitted(txReceipt1, 'AirlineVoted', {
+			name: airline5.name,
+		})
+
+		// Vote for airline 5 with funded airline 2
+		const txReceipt2 = await flightSuretyApp.voteAirline(airline5.address, {
+			from: airline2.address,
+		})
+
+		// Check airline 5 received a vote
+		truffleAssert.eventEmitted(txReceipt2, 'AirlineVoted', {
+			name: airline5.name,
+		})
+
+		// Vote for airline 5 with funded airline 3
+		const txReceipt3 = await flightSuretyApp.voteAirline(airline5.address, {
+			from: airline3.address,
+		})
+
+		// Check airline 5 received a vote
+		truffleAssert.eventEmitted(txReceipt3, 'AirlineVoted', {
+			name: airline5.name,
+		})
+
+		// Check airline 5 has changed from queued to registered
+		truffleAssert.eventEmitted(txReceipt3, 'AirlineRegistered', {
 			name: airline5.name,
 		})
 	})
