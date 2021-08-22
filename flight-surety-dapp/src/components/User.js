@@ -40,13 +40,25 @@ export default function User({ user, handleWithdrawAmountOwed }) {
 								<>
 									<td className='text-center'>{user.amountOwed} ETH</td>
 									<td className='td-actions text-right'>
-										<Button
-											style={styles.button_action}
-											color='primary'
-											type='button'
-											onClick={() => handleWithdrawAmountOwed(user.address)}>
-											Withdraw
-										</Button>
+										{user.amountOwed > 0 && (
+											<Button
+												style={styles.button_action}
+												color='primary'
+												type='button'
+												onClick={() => handleWithdrawAmountOwed(user.address)}>
+												Withdraw
+											</Button>
+										)}
+										{user.amountOwed > 0 == 0 && (
+											<Button
+												style={styles.button_action}
+												color='danger'
+												type='button'
+												outline
+												disabled>
+												Withdraw
+											</Button>
+										)}
 									</td>
 								</>
 							)}

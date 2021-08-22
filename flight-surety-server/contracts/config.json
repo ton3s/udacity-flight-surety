@@ -1,7 +1,7 @@
 {
 	"localhost": {
 		"url": "http://localhost:7545",
-		"appAddress": "0xc25B1E37Dfa180CbF1dCCc0a9DF267727180766E",
+		"appAddress": "0xEf4F8C68023A7d5587e115CA9D75aCE3eEad3FEe",
 		"gas": 6721975
 	},
 	"firstAirline": {

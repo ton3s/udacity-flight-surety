@@ -27,7 +27,10 @@ const styles = {
 const flightStatus = {
 	0: 'Unknown',
 	10: 'On Time',
-	20: 'Late',
+	20: 'Late - Airline',
+	30: 'Late - Weather',
+	40: 'Late - Technical',
+	50: 'Late - Other',
 }
 
 export default function FlightSuretyDapp({ network }) {
@@ -259,12 +262,7 @@ export default function FlightSuretyDapp({ network }) {
 	function handleFlightStatus(flight) {
 		// Check the flight status by calling the smart contract which then queries the oracle
 		flightSurety.methods
-			.processFlightStatus(
-				flight.airline,
-				flight.flightNumber,
-				flight.flightTime,
-				20
-			)
+			.fetchFlightStatus(flight.airline, flight.flightNumber, flight.flightTime)
 			.send({ from: user.address })
 			.catch((err) => {
 				console.log(err.message)
@@ -470,14 +468,37 @@ export default function FlightSuretyDapp({ network }) {
 		}
 
 		const PassengerWithdrawBalance = {
-			callback: (passenger) => {
+			callback: async (passenger) => {
 				console.log('PassengerWithdrawBalance', passenger)
+				setUser({
+					role: 'Passenger',
+					name: passenger.name,
+					address: passenger.passenger,
+					balance:
+						parseFloat(
+							web3.utils.fromWei(await web3.eth.getBalance(passenger.passenger))
+						).toFixed(2) + ' ETH',
+					amountOwed: '0.00',
+				})
 				displayAlert(
 					`Passenger successfully withdrew ${parseFloat(
 						web3.utils.fromWei(passenger.amount)
 					)} ETH`,
 					'Success'
 				)
+			},
+		}
+
+		// Oracle Events
+		const OracleReport = {
+			callback: (event) => {
+				console.log('OracleReport', event)
+			},
+		}
+
+		const OracleRequest = {
+			callback: (event) => {
+				console.log('OracleRequest', event)
 			},
 		}
 
@@ -491,6 +512,8 @@ export default function FlightSuretyDapp({ network }) {
 			FlightCreditInsurees,
 			PassengerPurchasedInsurance,
 			PassengerWithdrawBalance,
+			OracleReport,
+			OracleRequest,
 		})
 	}
 

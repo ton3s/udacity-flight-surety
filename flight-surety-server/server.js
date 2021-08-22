@@ -4,13 +4,15 @@ import Web3 from 'web3'
 import express from 'express'
 
 // Constants
-const NUM_ORACLES = 5
+const NUM_ORACLES = 20
 const STATUS_CODE_UNKNOWN = 0
 const STATUS_CODE_ON_TIME = 10
 const STATUS_CODE_LATE_AIRLINE = 20
 const STATUS_CODE_LATE_WEATHER = 30
 const STATUS_CODE_LATE_TECHNICAL = 40
 const STATUS_CODE_LATE_OTHER = 50
+
+const statusCodes = [STATUS_CODE_ON_TIME, STATUS_CODE_LATE_AIRLINE]
 
 let oracles = {}
 
@@ -78,15 +80,87 @@ async function registerOracles() {
 }
 
 function setupWeb3Listeners() {
-	flightSuretyApp.events.OracleRequest(
-		{
-			fromBlock: 0,
-		},
-		function (error, event) {
-			if (error) console.log(error)
-			console.log(event)
-		}
+	// AirlineRegistered
+	flightSuretyApp.events.AirlineRegistered({}, (error, event) =>
+		logEvent(error, event)
 	)
+
+	// AirlineQueued
+	flightSuretyApp.events.AirlineQueued({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// AirlineFunded
+	flightSuretyApp.events.AirlineFunded({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// AirlineVoted
+	flightSuretyApp.events.AirlineVoted({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// FlightRegistered
+	flightSuretyApp.events.FlightRegistered({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// FlightStatus
+	flightSuretyApp.events.FlightStatus({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// FlightCreditInsurees
+	flightSuretyApp.events.FlightCreditInsurees({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// PassengerPurchasedInsurance
+	flightSuretyApp.events.PassengerPurchasedInsurance({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// PassengerWithdrawBalance
+	flightSuretyApp.events.PassengerWithdrawBalance({}, (error, event) =>
+		logEvent(error, event)
+	)
+
+	// OracleRequest
+	flightSuretyApp.events.OracleRequest({}, (error, event) => {
+		logEvent(error, event)
+		sendOracleResponse(event.returnValues)
+	})
+
+	// OracleReport
+	flightSuretyApp.events.OracleReport({}, (error, event) =>
+		logEvent(error, event)
+	)
+}
+
+function sendOracleResponse(request) {
+	const { index, airline, flight, timestamp } = request
+
+	// Get a random status code
+	let randomStatusCode =
+		statusCodes[Math.floor(Math.random() * statusCodes.length)]
+
+	// Loop through oracles for matching index
+	Object.keys(oracles).forEach((oracle) => {
+		let found = oracles[oracle].find((i) => i === index)
+		if (found) {
+			flightSuretyApp.methods
+				.processFlightStatus(airline, flight, timestamp, randomStatusCode)
+				.send({ from: oracle, gas: config.gas })
+				.catch((err) => {
+					console.log(err.message)
+				})
+		}
+	})
+}
+
+function logEvent(error, event) {
+	if (error) console.log(error)
+	console.log(event)
 }
 
 export default app

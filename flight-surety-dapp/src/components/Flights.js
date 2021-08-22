@@ -89,13 +89,25 @@ export default function Flights({
 										</td>
 										<td>{flightStatus[flight.status]}</td>
 										<td className='td-actions text-right'>
-											<Button
-												style={styles.button_action}
-												color='primary'
-												type='button'
-												onClick={() => handleFlightStatus(flight)}>
-												Status
-											</Button>
+											{flight.status != 20 && (
+												<Button
+													style={styles.button_action}
+													color='primary'
+													type='button'
+													onClick={() => handleFlightStatus(flight)}>
+													Status
+												</Button>
+											)}
+											{flight.status == 20 && (
+												<Button
+													style={styles.button_action}
+													color='danger'
+													type='button'
+													outline
+													disabled>
+													Paid
+												</Button>
+											)}
 										</td>
 									</tr>
 								))}

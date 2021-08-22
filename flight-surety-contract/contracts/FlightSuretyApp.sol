@@ -65,7 +65,7 @@ contract FlightSuretyApp {
     event FlightStatus(string flightNumber, uint flightTime, address airline, uint8 statusCode, bytes32 flightKey);
     event FlightCreditInsurees(string flightNumber, uint flightTime, address airline, bytes32 flightKey);
     event PassengerPurchasedInsurance(string name, bytes32 flightKey, address passenger, uint amount);
-    event PassengerWithdrawBalance(address passenger, uint amount);
+    event PassengerWithdrawBalance(string name, address passenger, uint amount);
     
     // Modifiers
     modifier requireIsOperational() {
@@ -378,7 +378,7 @@ contract FlightSuretyApp {
         // Send funds to passenger
         msg.sender.transfer(amountOwed);
         
-        emit PassengerWithdrawBalance(msg.sender, amountOwed);
+        emit PassengerWithdrawBalance(passengers[msg.sender].name, msg.sender, amountOwed);
     }
 
 // region ORACLE MANAGEMENT
