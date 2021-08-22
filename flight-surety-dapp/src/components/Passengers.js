@@ -39,7 +39,7 @@ export default function Passengers({
 	function handlePurchaseInsuranceModal() {
 		if (user.role === 'Airline') {
 			return displayAlert(
-				'An airline account cannot purchase insurance',
+				'An airline account cannot purchase insurance. Please select another account',
 				'Error'
 			)
 		}

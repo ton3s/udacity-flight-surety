@@ -3,20 +3,24 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
- interface IFlightSurety {
+interface IFlightSurety {
+    function isOperational() external view returns(bool);
+    function isAirlineExists(address airline) external view returns (bool);
+    function isAirlineQueued(address airline) external view returns (bool);
+    function isAirlineRegistered(address airline) external view returns (bool);
+    function isAirlineFunded(address airline) external view returns (bool);
+    function getRegisteredAirlinesCount() external view returns (uint);
+    function getAirlineName(address airline) external view returns (string memory);
+    function queueAirline(string calldata name, address airline) external;
+    function registerAirline(string calldata name, address airline) external;
+    function isUniqueVote(address airline, address votingAirline) external view returns (bool);
+    function voteAirline(address airline, address votingAirline) external;
+    function getAirlineVotes(address airline) external view returns (address[] memory);
+    function fundAirline(address airline) external payable;
 }
 
 contract FlightSuretyApp {
     using SafeMath for uint256;
-    
-    enum AirlineState { QUEUED, REGISTERED, FUNDED }
-    
-    struct Airline {
-        string name;
-        AirlineState status;
-        address[] votes;
-        bool exists;
-    }
     
     struct Flight {
         string flightNumber;
@@ -41,15 +45,10 @@ contract FlightSuretyApp {
     uint private constant FUNDING_REQUIRED = 10 ether;
     uint private constant MAX_INSURANCE_PRICE = 1 ether;
     
-    // Running counter of registered airlines
-    uint public registeredAirlinesCount = 0;
-    
-    mapping(address => Airline) public airlines;
     mapping(bytes32 => Flight) public flights;
     mapping(address => Passenger) public passengers;
     
     IFlightSurety flightSurety;
-    bool private operational = true;
     address private contractOwner; 
     
     // Flight status codes
@@ -71,12 +70,11 @@ contract FlightSuretyApp {
     event PassengerPurchasedInsurance(string name, bytes32 flightKey, address passenger, uint amount);
     event PassengerWithdrawBalance(string name, address passenger, uint amount);
     
-    // Modifiers
-    modifier requireIsOperational() {
-        require(operational, "Contract is currently not operational");
+     modifier requireIsOperational() {
+        require(flightSurety.isOperational(), "Contract is currently not operational");
         _; 
     }
-    
+
     modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
@@ -84,35 +82,41 @@ contract FlightSuretyApp {
     
     // Check if the airline is registered
     modifier isAirlineRegistered(address airline) {
-        require(airlines[airline].exists == true, "Airline does not exist");
-        require(airlines[airline].status == AirlineState.REGISTERED, "Airline is not registered");
+        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
+        require(flightSurety.isAirlineRegistered(airline), "Airline is not registered");
         _;
     }
     
     // Check if airline has been queued
     modifier isAirlineQueued(address airline) {
-        require(airlines[airline].exists == true, "Airline does not exist");
-        require(airlines[airline].status == AirlineState.QUEUED, "Airline is not queued");
+        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
+        require(flightSurety.isAirlineQueued(airline), "Airline is not queued");
         _;
     }
     
     // Check if an airline is funded
     modifier isAirlineFunded(address airline) {
-        require(airlines[airline].exists == true, "Airline does not exist");
-        require(airlines[airline].status == AirlineState.FUNDED, "Airline is not funded");
+        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
+        require(flightSurety.isAirlineFunded(airline), "Airline is not funded");
         _;
     }
 
     // Check if airline is registered / funded
     modifier isAirlineRegisteredFunded(address airline) {
-        require(airlines[airline].exists == true, "Airline does not exist");
-        require(airlines[airline].status == AirlineState.REGISTERED || airlines[airline].status == AirlineState.FUNDED, "Airline is not registered or funded");
+        require(flightSurety.isAirlineExists(airline), "Airline does not exist");
+        require(flightSurety.isAirlineRegistered(airline) || flightSurety.isAirlineFunded(airline), "Airline is not registered or funded");
         _;
     }
 
     // Check if the airline address has already been registered
     modifier isNewAirline(address airline) {
-        require(airlines[airline].exists == false, "Airline has already been registered with this address");
+        require(flightSurety.isAirlineExists(airline) == false, "Airline has already been registered with this address");
+        _;
+    }
+
+    // Check if caller has already called this function
+    modifier isUniqueVote(address airline, address votingAirline) {
+        require(flightSurety.isUniqueVote(airline, votingAirline), "Caller has already voted to registered this airline");
         _;
     }
     
@@ -161,26 +165,9 @@ contract FlightSuretyApp {
         _;
     }
     
-    constructor(address dataContract, string memory name, address airline) public {
+    constructor(address dataContract) public {
         contractOwner = msg.sender;
         flightSurety = IFlightSurety(dataContract);
-
-        // Register the first airline
-        airlines[airline] = Airline({ 
-            name: name, 
-            status: AirlineState.REGISTERED,
-            votes: new address[](0),
-            exists: true
-        });
-        registeredAirlinesCount = SafeMath.add(registeredAirlinesCount, 1);
-    }
-
-    function isOperational() public view returns(bool) {
-        return operational;  
-    }
-
-    function setOperatingStatus(bool mode) external requireContractOwner {
-        operational = mode;
     }
     
     // *******************
@@ -192,29 +179,13 @@ contract FlightSuretyApp {
         isAirlineFunded(msg.sender) public {
         
         // Queue the airline if the airline registration limit is exceeded
-        if (registeredAirlinesCount >= AIRLINES_REGISTRATION_LIMIT) {
-            
-            // Queue the airline
-            airlines[airline] = Airline({ 
-                name: name, 
-                status: AirlineState.QUEUED, 
-                votes: new address[](0),
-                exists: true
-            }); 
-            
+        if (flightSurety.getRegisteredAirlinesCount() >= AIRLINES_REGISTRATION_LIMIT) {
+            flightSurety.queueAirline(name, airline);
             emit AirlineQueued(name, airline);
         }
         else {
-            
             // Register the airline
-            airlines[airline] = Airline({ 
-                name: name, 
-                status: AirlineState.REGISTERED,
-                votes: new address[](0),
-                exists: true
-            });  
-            registeredAirlinesCount = SafeMath.add(registeredAirlinesCount, 1);
-            
+            flightSurety.registerAirline(name, airline);
             emit AirlineRegistered(name, airline);
         }
     }
@@ -222,37 +193,27 @@ contract FlightSuretyApp {
     function voteAirline(address airline) 
         requireIsOperational
         isAirlineQueued(airline) 
-        isAirlineRegisteredFunded(msg.sender) public {
-        
-         // Check if caller has already called this function
-        bool isDuplicate = false;
-        for (uint i=0; i < airlines[airline].votes.length; i++) {
-            if (airlines[airline].votes[i] == msg.sender) {
-                isDuplicate = true;
-                break;
-            }
-        }
-        require(!isDuplicate, "Caller has already voted to registered this airline");
-
-        airlines[airline].votes.push(msg.sender);
-        emit AirlineVoted(airlines[airline].name, msg.sender, airline);
+        isAirlineRegisteredFunded(msg.sender) 
+        isUniqueVote(airline, msg.sender) public {
+     
+        flightSurety.voteAirline(airline, msg.sender);
+        emit AirlineVoted(flightSurety.getAirlineName(airline), msg.sender, airline);
 
         // Check if airline has the required number of votes 50%+
-        if (airlines[airline].votes.length > SafeMath.div(registeredAirlinesCount, 2)) {
-            airlines[airline].status = AirlineState.REGISTERED;
-            registeredAirlinesCount = SafeMath.add(registeredAirlinesCount, 1);
-            
-            emit AirlineRegistered(airlines[airline].name, airline);
+        if (flightSurety.getAirlineVotes(airline).length > SafeMath.div(flightSurety.getRegisteredAirlinesCount(), 2)) {
+            flightSurety.registerAirline(flightSurety.getAirlineName(airline), airline);
+            emit AirlineRegistered(flightSurety.getAirlineName(airline), airline);
         }
     }
     
-    function fundAirline() isAirlineRegistered(msg.sender) 
+    function fundAirline() 
+        isAirlineRegistered(msg.sender) 
         requireIsOperational
         paidEnough(FUNDING_REQUIRED) 
-        checkValue(FUNDING_REQUIRED) public payable {
-        airlines[msg.sender].status = AirlineState.FUNDED;
+        checkValue(FUNDING_REQUIRED) external payable {
         
-        emit AirlineFunded(airlines[msg.sender].name, msg.sender);
+        flightSurety.fundAirline.value(msg.value)(msg.sender);
+        emit AirlineFunded(flightSurety.getAirlineName(msg.sender), msg.sender);
     }
     
     // *******************
@@ -524,9 +485,4 @@ contract FlightSuretyApp {
     }
 
     // endregion
-    
-    function() external payable {
-        fundAirline();
-    }
-    
 }

@@ -31,6 +31,11 @@ v1.2.1
 ## Prerequisites
 
 - Ganache is setup with at least 20 accounts in order to setup 20 oracles
+
+```
+ganache-cli --deterministic 100000000 --accounts 20 --networkId 5777 --defaultBalanceEther 1000 --allowUnlimitedContractSize
+```
+
 - Import the Mneumonic seed from Ganache into Metamask so you can run the Dapp locally
 
 ## Setup
