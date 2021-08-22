@@ -3,6 +3,9 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+ interface IFlightSurety {
+}
+
 contract FlightSuretyApp {
     using SafeMath for uint256;
     
@@ -45,6 +48,7 @@ contract FlightSuretyApp {
     mapping(bytes32 => Flight) public flights;
     mapping(address => Passenger) public passengers;
     
+    IFlightSurety flightSurety;
     bool private operational = true;
     address private contractOwner; 
     
@@ -157,9 +161,10 @@ contract FlightSuretyApp {
         _;
     }
     
-    constructor(string memory name, address airline) public {
+    constructor(address dataContract, string memory name, address airline) public {
         contractOwner = msg.sender;
-    
+        flightSurety = IFlightSurety(dataContract);
+
         // Register the first airline
         airlines[airline] = Airline({ 
             name: name, 
