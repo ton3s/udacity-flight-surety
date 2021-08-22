@@ -184,7 +184,7 @@ contract FlightSuretyApp {
     function registerAirline(string memory name, address airline) 
         requireIsOperational
         isNewAirline(airline)
-        isAirlineRegisteredFunded(msg.sender) public {
+        isAirlineFunded(msg.sender) public {
         
         // Queue the airline if the airline registration limit is exceeded
         if (registeredAirlinesCount >= AIRLINES_REGISTRATION_LIMIT) {

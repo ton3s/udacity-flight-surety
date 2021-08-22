@@ -28,13 +28,10 @@ export default function Airlines({
 		// Check that funded or registered airline is currently selected
 		if (
 			user.role !== 'Airline' ||
-			airlines.filter((airline) => airline.name === user.name)[0].status ===
-				'Queued'
+			airlines.filter((airline) => airline.name === user.name)[0].status !==
+				'Funded'
 		) {
-			return displayAlert(
-				'Only registered or funded airlines can register airlines',
-				'Error'
-			)
+			return displayAlert('Only funded airlines can register airlines', 'Error')
 		}
 		setShowAirlineModal(true)
 	}
