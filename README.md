@@ -13,11 +13,17 @@ Helper library to assist with checking for events
 
 # truffle-hdwallet-provider
 HD Wallet-enabled Web3 provider. Use it to sign transactions for addresses
+
+# react framework
+Javascript library used for building user interfaces
 ```
 
 ### Versions
 
 ```
+# React verion
+v16.13.1
+
 # Truffle version
 v5.3.12
 
@@ -67,6 +73,10 @@ truffle migrate --reset
 ```
 
 ### Dapp
+
+- Dapp was made using the React framework
+
+![Dapp-Screenshot](https://i.imgur.com/rnRCbXk.png)
 
 ```
 cd flight-surety-dapp

@@ -289,8 +289,9 @@ contract FlightSuretyApp {
         isPassenger(msg.sender) 
         canPassengerWithdrawBalance(msg.sender) external {
         
+        uint amountOwed = flightSurety.getPassengerWithdrawBalance(msg.sender);
         flightSurety.withdrawFunds(msg.sender);
-        emit PassengerWithdrawBalance(flightSurety.getPassengerName(msg.sender), msg.sender, flightSurety.getPassengerWithdrawBalance(msg.sender));
+        emit PassengerWithdrawBalance(flightSurety.getPassengerName(msg.sender), msg.sender, amountOwed);
     }
 
     function getPassengerWithdrawBalance(address passenger) external view returns (uint) {
